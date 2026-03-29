@@ -1,5 +1,4 @@
 import { Head } from '@inertiajs/react';
-import { CalendarDays, Clock3, Film, MapPin } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import {
@@ -49,6 +48,17 @@ const movies = [
     },
 ];
 
+function IconBadge({ children }: { children: string }) {
+    return (
+        <span
+            aria-hidden="true"
+            className="inline-flex size-5 items-center justify-center rounded-full bg-white/10 text-[0.7rem] font-semibold text-current"
+        >
+            {children}
+        </span>
+    );
+}
+
 export default function Welcome() {
     return (
         <>
@@ -63,7 +73,7 @@ export default function Welcome() {
                                     variant="secondary"
                                     className="gap-1.5 rounded-full border-white/10 bg-white/10 px-3 py-1 text-white"
                                 >
-                                    <Film className="size-3.5" />
+                                    <IconBadge>CC</IconBadge>
                                     City Cinema
                                 </Badge>
                                 <div className="space-y-3">
@@ -82,7 +92,7 @@ export default function Welcome() {
                             <div className="grid gap-3 sm:grid-cols-2">
                                 <div className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3">
                                     <div className="flex items-center gap-2 text-sm font-medium text-white">
-                                        <CalendarDays className="size-4 text-primary" />
+                                        <IconBadge>DT</IconBadge>
                                         Thursday, March 27
                                     </div>
                                     <p className="mt-1 text-sm text-white/65">
@@ -91,7 +101,7 @@ export default function Welcome() {
                                 </div>
                                 <div className="rounded-2xl border border-white/10 bg-black/20 px-4 py-3">
                                     <div className="flex items-center gap-2 text-sm font-medium text-white">
-                                        <MapPin className="size-4 text-primary" />
+                                        <IconBadge>PL</IconBadge>
                                         Old Town, Main Street 18
                                     </div>
                                     <p className="mt-1 text-sm text-white/65">
@@ -164,7 +174,7 @@ export default function Welcome() {
                                             </div>
                                         </div>
                                         <div className="rounded-full bg-primary/15 p-2 text-primary">
-                                            <Film className="size-4" />
+                                            <IconBadge>FX</IconBadge>
                                         </div>
                                     </div>
                                     <CardDescription className="leading-6 text-white/65">
@@ -174,7 +184,7 @@ export default function Welcome() {
 
                                 <CardContent className="space-y-5">
                                     <div className="flex items-center gap-2 text-sm text-white/65">
-                                        <Clock3 className="size-4" />
+                                        <IconBadge>TM</IconBadge>
                                         Runtime: {movie.runtime}
                                     </div>
 
