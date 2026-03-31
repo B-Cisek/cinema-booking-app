@@ -9,7 +9,7 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 #[Table(timestamps: true)]
-#[Fillable(['city'])]
+#[Fillable(['city', 'street'])]
 class Cinema extends Model
 {
     use HasUuids;

@@ -13,8 +13,8 @@ return new class extends Migration
     {
         Schema::create('cinemas', function (Blueprint $table) {
             $table->uuid('id')->primary();
-            $table->string('city');
-            // address
+            $table->string('street', 100);
+            $table->string('city', 100);
             $table->timestamps();
         });
     }

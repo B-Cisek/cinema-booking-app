@@ -2,11 +2,15 @@
 
 namespace App\Http\Middleware;
 
+use App\Http\Controllers\SelectCinemaController;
+use App\Repositories\CinemaRepository;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
 {
+    public function __construct(private readonly CinemaRepository $cinemaRepository) {}
+
     /**
      * The root template that's loaded on the first page visit.
      *
@@ -38,6 +42,8 @@ class HandleInertiaRequests extends Middleware
         return [
             ...parent::share($request),
             'name' => config('app.name'),
+            'cinemas' => $this->cinemaRepository->getForSelect(),
+            'selectedCinemaId' => $request->session()->get(SelectCinemaController::CINEMA_KEY),
             'auth' => [
                 'user' => $request->user(),
             ],

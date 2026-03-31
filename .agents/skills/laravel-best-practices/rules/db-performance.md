@@ -93,7 +93,7 @@ User::where('active', false)->chunkById(200, function ($users) {
 
 ## Add Database Indexes
 
-Index columns that appear in `WHERE`, `ORDER BY`, `JOIN`, and `GROUP BY` clauses.
+Home columns that appear in `WHERE`, `ORDER BY`, `JOIN`, and `GROUP BY` clauses.
 
 Incorrect:
 ```php

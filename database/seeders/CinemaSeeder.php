@@ -13,16 +13,26 @@ class CinemaSeeder extends Seeder
     public function run(): void
     {
         $cities = [
-            'Rzeszów',
-            'Warszawa',
-            'Kraków',
-            'Lublin',
+            [
+                'street' => 'ul. Złota 11',
+                'city' => 'Warszawa',
+            ],
+            [
+                'street' => 'ul. Adamowskiego 10',
+                'city' => 'Rzeszów',
+            ],
+            [
+                'street' => 'ul. Kopernika 55',
+                'city' => 'Lublin',
+            ],
+            [
+                'street' => 'ul. Sportowa 12/3',
+                'city' => 'Kraków',
+            ],
         ];
 
-        foreach ($cities as $city) {
-            Cinema::create([
-                'city' => $city,
-            ]);
+        foreach ($cities as $cityData) {
+            Cinema::create($cityData);
         }
     }
 }
