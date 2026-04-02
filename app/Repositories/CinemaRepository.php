@@ -12,22 +12,12 @@ class CinemaRepository
 
     public function getForSelect(): Collection
     {
-        $cachedCinemas = Cache::get(self::CINEMAS_KEY);
-
-        if (is_array($cachedCinemas)) {
-            return Cinema::hydrate($cachedCinemas);
-        }
-
-        if ($cachedCinemas !== null) {
-            Cache::forget(self::CINEMAS_KEY);
-        }
-
         $cinemas = Cache::rememberForever(
-            key: self::CINEMAS_KEY,
-            callback: fn () => Cinema::query()
+            self::CINEMAS_KEY,
+            fn () => Cinema::query()
                 ->select('cinemas.id', 'cinemas.street', 'cinemas.city')
                 ->get()
-                ->toArray(),
+                ->toArray()
         );
 
         return Cinema::hydrate($cinemas);

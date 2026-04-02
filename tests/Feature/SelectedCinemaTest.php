@@ -2,9 +2,9 @@
 
 namespace Tests\Feature;
 
+use App\Actions\SelectCinema;
 use App\Enums\ScreeningStatus;
 use App\Exceptions\CinemaNotFoundException;
-use App\Http\Controllers\SelectCinemaController;
 use App\Models\Cinema;
 use App\Models\Hall;
 use App\Models\Movie;
@@ -20,25 +20,55 @@ class SelectedCinemaTest extends TestCase
 {
     use RefreshDatabase;
 
+    private Cinema $cinema;
+
+    protected function setUp(): void
+    {
+        parent::setUp();
+
+        $this->cinema = Cinema::factory()->create();
+    }
+
     #[Test]
     public function it_stores_the_selected_cinema_id_in_the_session(): void
     {
-        $cinema = Cinema::query()->create([
-            'city' => 'Warszawa',
-            'street' => 'ul. Zlota 11',
-        ]);
-
         $response = $this->post(route('cinemas.select'), [
-            'id' => $cinema->getKey(),
+            'id' => $this->cinema->getKey(),
         ]);
 
         $response
             ->assertRedirect(route('home'))
             ->assertSessionHas(
-                SelectCinemaController::CINEMA_SESSION_KEY,
-                $cinema->getKey(),
+                SelectCinema::CINEMA_SESSION_KEY,
+                $this->cinema->getKey(),
             )
-            ->assertCookie(config('app.selected_cinema_cookie_name'), $cinema->getKey());
+            ->assertCookie(config('app.selected_cinema_cookie_name'), $this->cinema->getKey());
+    }
+
+    #[Test]
+    public function it_stores_the_selected_cinema_id_in_the_cookie(): void
+    {
+        $response = $this->post(route('cinemas.select'), [
+            'id' => $this->cinema->getKey(),
+        ]);
+
+        $response
+            ->assertRedirect(route('home'))
+            ->assertCookie(config('app.selected_cinema_cookie_name'), $this->cinema->getKey());
+    }
+
+    #[Test]
+    public function it_validates_the_selected_cinema_id(): void
+    {
+        $response = $this->from(route('home'))->post(route('cinemas.select'), [
+            'id' => 'invalid-id',
+        ]);
+
+        $response
+            ->assertRedirect(route('home'))
+            ->assertInvalid([
+                'id' => 'The selected cinema id is invalid.',
+            ]);
     }
 
     #[Test]
@@ -50,25 +80,20 @@ class SelectedCinemaTest extends TestCase
             fn () => $this->post(route('cinemas.select'), [
                 'id' => Uuid::uuid7()->toString(),
             ]),
-            fn (CinemaNotFoundException $exception) => $exception->getMessage() === 'Invalid cinema',
+            fn (CinemaNotFoundException $exception) => $exception->getMessage() === 'Cinema not found.',
         );
     }
 
     #[Test]
     public function it_shows_screenings_for_the_selected_cinema_on_home_page(): void
     {
-        $selectedCinema = Cinema::query()->create([
-            'city' => 'Warszawa',
-            'street' => 'ul. Zlota 11',
-        ]);
-
         $otherCinema = Cinema::query()->create([
             'city' => 'Krakow',
             'street' => 'ul. Dluga 5',
         ]);
 
         $selectedHall = Hall::query()->create([
-            'cinema_id' => $selectedCinema->getKey(),
+            'cinema_id' => $this->cinema->getKey(),
             'name' => 'main',
             'label' => 'Sala 1',
         ]);
@@ -107,7 +132,7 @@ class SelectedCinemaTest extends TestCase
 
         $response = $this
             ->withSession([
-                SelectCinemaController::CINEMA_SESSION_KEY => $selectedCinema->getKey(),
+                SelectCinema::CINEMA_SESSION_KEY => $this->cinema->getKey(),
             ])
             ->get(route('home'));
 
@@ -133,13 +158,8 @@ class SelectedCinemaTest extends TestCase
     #[Test]
     public function it_shows_only_screenings_from_the_home_schedule_range(): void
     {
-        $cinema = Cinema::query()->create([
-            'city' => 'Warszawa',
-            'street' => 'ul. Zlota 11',
-        ]);
-
         $hall = Hall::query()->create([
-            'cinema_id' => $cinema->getKey(),
+            'cinema_id' => $this->cinema->getKey(),
             'name' => 'main',
             'label' => 'Sala 1',
         ]);
@@ -173,7 +193,7 @@ class SelectedCinemaTest extends TestCase
 
         $response = $this
             ->withSession([
-                SelectCinemaController::CINEMA_SESSION_KEY => $cinema->getKey(),
+                SelectCinema::CINEMA_SESSION_KEY => $this->cinema->getKey(),
             ])
             ->get(route('home'));
 
@@ -201,7 +221,7 @@ class SelectedCinemaTest extends TestCase
 
         $response
             ->assertOk()
-            ->assertSessionHas(SelectCinemaController::CINEMA_SESSION_KEY, $cinema->getKey())
+            ->assertSessionHas(SelectCinema::CINEMA_SESSION_KEY, $cinema->getKey())
             ->assertInertia(fn (Assert $page) => $page
                 ->component('Home')
                 ->where('selectedCinema.id', $cinema->getKey())

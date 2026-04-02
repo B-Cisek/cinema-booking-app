@@ -24,6 +24,18 @@ class SelectCinemaRequest extends FormRequest
         ];
     }
 
+    /**
+     * Get custom error messages for validator failures.
+     *
+     * @return array<string, string>
+     */
+    public function messages(): array
+    {
+        return [
+            'id.uuid' => 'The selected cinema id is invalid.',
+        ];
+    }
+
     public function cinemaId(): string
     {
         return $this->validated('id');
