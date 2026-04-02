@@ -4,18 +4,17 @@ namespace App\Services;
 
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\App;
+use Illuminate\Support\Facades\Config;
 
 class ScheduleDaysFactory
 {
-    private const int SCHEDULE_DAYS = 7;
-
     public function make(): array
     {
         $scheduleDays = [];
-        $now = CarbonImmutable::now();
+        $startsAt = $this->startsAt();
 
-        for ($i = 0; $i < self::SCHEDULE_DAYS; $i++) {
-            $day = $now->addDays($i)->locale(App::currentLocale());
+        for ($i = 0; $i < $this->scheduleDays(); $i++) {
+            $day = $startsAt->addDays($i)->locale(App::currentLocale());
 
             $scheduleDays[] = [
                 'date' => $day->toDateString(),
@@ -29,5 +28,22 @@ class ScheduleDaysFactory
         }
 
         return $scheduleDays;
+    }
+
+    private function scheduleDays(): int
+    {
+        return Config::integer('app.schedule.days_range');
+    }
+
+    public function startsAt(): CarbonImmutable
+    {
+        return CarbonImmutable::now()->startOfDay();
+    }
+
+    public function endsAt(): CarbonImmutable
+    {
+        return $this->startsAt()
+            ->addDays($this->scheduleDays() - 1)
+            ->endOfDay();
     }
 }

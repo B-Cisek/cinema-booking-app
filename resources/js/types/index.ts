@@ -32,3 +32,21 @@ export interface Screening {
     hall: ScreeningHall;
     movie: ScreeningMovie;
 }
+
+export type SeatType = 'standard' | 'vip' | 'wheelchair' | 'couple';
+
+export interface SeatMapSeat {
+    id: string;
+    row: string;
+    seatNumber: number;
+    seatType: SeatType;
+    posX: number;
+    posY: number;
+    isActive: boolean;
+    isBooked: boolean;
+}
+
+export interface SeatMapRow {
+    label: string;
+    seats: SeatMapSeat[];
+}

@@ -2,13 +2,15 @@
 
 namespace App\Queries;
 
-use App\Models\Cinema;
 use App\Repositories\ScreeningRepository;
-use Carbon\CarbonImmutable;
+use App\Services\ScheduleDaysFactory;
 
 class GetHomeScreeningsQuery
 {
-    public function __construct(private readonly ScreeningRepository $repository) {}
+    public function __construct(
+        private readonly ScreeningRepository $repository,
+        private readonly ScheduleDaysFactory $scheduleDaysFactory,
+    ) {}
 
     /**
      * @return array<int, array<string, mixed>>
@@ -16,8 +18,12 @@ class GetHomeScreeningsQuery
     public function execute(string $cinemaId): array
     {
         $screenings = [];
-        
-        $collection = $this->repository->getForHomePage($cinemaId);
+
+        $collection = $this->repository->getForHomePage(
+            $cinemaId,
+            $this->scheduleDaysFactory->startsAt(),
+            $this->scheduleDaysFactory->endsAt(),
+        );
 
         foreach ($collection as $screening) {
             $screenings[] = [

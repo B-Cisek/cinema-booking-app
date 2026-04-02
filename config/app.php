@@ -123,4 +123,9 @@ return [
         'store' => env('APP_MAINTENANCE_STORE', 'database'),
     ],
 
+    'selected_cinema_cookie_name' => env('APP_SELECTED_CINEMA_COOKIE_NAME', 'selected-cinema'),
+    'selected_cinema_cookie_lifetime_minutes' => env('APP_SELECTED_CINEMA_COOKIE_LIFETIME_MINUTES', 60 * 24 * 30),
+    'schedule' => [
+        'days_range' => env('APP_SCHEDULE_DAYS_RANGE', 7),
+    ],
 ];

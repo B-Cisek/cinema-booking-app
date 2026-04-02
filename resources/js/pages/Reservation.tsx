@@ -4,7 +4,7 @@ import CinemaHall from '@/components/CinemaHall';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import type { SeatMapRow } from '@/lib/seat-layout';
+import type { SeatMapRow } from '@/types';
 
 interface ReservationPageProps {
     seats: SeatMapRow[];
@@ -112,7 +112,7 @@ export default function ReservationPage({
                     </CardContent>
                 </Card>
 
-                <CinemaHall />
+                <CinemaHall seats={seats} />
             </section>
         </>
     );

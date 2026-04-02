@@ -2,14 +2,17 @@
 
 namespace App\Http\Middleware;
 
-use App\Http\Controllers\SelectCinemaController;
 use App\Repositories\CinemaRepository;
+use App\Services\CinemaResolver;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 
 class HandleInertiaRequests extends Middleware
 {
-    public function __construct(private readonly CinemaRepository $cinemaRepository) {}
+    public function __construct(
+        private readonly CinemaRepository $cinemaRepository,
+        private readonly CinemaResolver $selectedCinemaResolver,
+    ) {}
 
     /**
      * The root template that's loaded on the first page visit.
@@ -39,15 +42,11 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
-        $selectedCinemaId = $request->session()->get(SelectCinemaController::CINEMA_SESSION_KEY);
-
         return [
             ...parent::share($request),
             'name' => config('app.name'),
             'cinemas' => $this->cinemaRepository->getForSelect(),
-            'selectedCinema' => $selectedCinemaId
-                ? $this->cinemaRepository->getById($selectedCinemaId)
-                : null,
+            'selectedCinema' => $this->selectedCinemaResolver->resolve($request),
             'auth' => [
                 'user' => $request->user(),
             ],

@@ -10,11 +10,11 @@ use Illuminate\Database\Eloquent\Collection;
 class ScreeningRepository
 {
     /** @return Collection<int, Screening> */
-    public function getForHomePage(string $cinemaId): Collection
-    {
-        $dateRangeStart = CarbonImmutable::now()->startOfDay();
-        $dateRangeEnd = $dateRangeStart->addDays(6)->endOfDay();
-
+    public function getForHomePage(
+        string $cinemaId,
+        CarbonImmutable $dateRangeStart,
+        CarbonImmutable $dateRangeEnd,
+    ): Collection {
         return Screening::query()
             ->with([
                 'hall:id,cinema_id,label',

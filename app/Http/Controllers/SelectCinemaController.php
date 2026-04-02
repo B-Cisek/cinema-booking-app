@@ -2,32 +2,17 @@
 
 namespace App\Http\Controllers;
 
-use App\Exceptions\InvalidCinemaException;
-use App\Repositories\CinemaRepository;
+use App\Actions\SelectCinema;
+use App\Http\Requests\SelectCinemaRequest;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
 
 class SelectCinemaController extends Controller
 {
-    public const string CINEMA_SESSION_KEY = 'cinema_id';
+    public function __construct(private readonly SelectCinema $selectCinema) {}
 
-    public function __construct(private readonly CinemaRepository $cinemaRepository) {}
-
-    /**
-     * @throws \Throwable
-     */
-    public function __invoke(Request $request): RedirectResponse
+    public function __invoke(SelectCinemaRequest $request): RedirectResponse
     {
-        $id = $request->input('id');
-
-        if ($id) {
-            throw_if(
-                ! $this->cinemaRepository->isExist($id),
-                InvalidCinemaException::class,
-            );
-
-            $request->session()->put(self::CINEMA_SESSION_KEY, $id);
-        }
+        $this->selectCinema->handle($request, $request->cinemaId());
 
         return redirect()->route('home');
     }
