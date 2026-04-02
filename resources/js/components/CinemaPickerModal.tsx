@@ -13,6 +13,7 @@ interface CinemaPickerModalProps {
     isOpen: boolean;
     onOpenChange: (open: boolean) => void;
     onSelect: (cinema: Cinema) => void;
+    required?: boolean;
     search: string;
     selectedCinemaId: string | null;
     setSearch: (value: string) => void;
@@ -23,6 +24,7 @@ export default function CinemaPickerModal({
     isOpen,
     onOpenChange,
     onSelect,
+    required = false,
     search,
     selectedCinemaId,
     setSearch,
@@ -37,7 +39,17 @@ export default function CinemaPickerModal({
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
             <DialogContent
                 className="max-h-[85vh] max-w-2xl gap-0 overflow-hidden rounded-3xl border border-border bg-background p-0 shadow-2xl shadow-primary/10 sm:max-w-2xl"
-                showCloseButton={true}
+                onEscapeKeyDown={(event) => {
+                    if (required) {
+                        event.preventDefault();
+                    }
+                }}
+                onInteractOutside={(event) => {
+                    if (required) {
+                        event.preventDefault();
+                    }
+                }}
+                showCloseButton={!required}
             >
                 <DialogHeader className="border-b border-border px-6 py-5 text-left">
                     <p className="text-xs font-semibold tracking-[0.28em] text-primary uppercase">

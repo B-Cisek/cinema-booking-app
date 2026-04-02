@@ -3,21 +3,15 @@ import { Ticket } from 'lucide-react';
 import CinemaPicker from '@/components/CinemaPicker';
 import { Button } from '@/components/ui/button';
 import { home } from '@/routes';
-import type { Cinema, User } from '@/types';
+import type { User } from '@/types';
 
 interface AppHeaderProps {
     auth?: {
         user?: User | null;
     };
-    cinemas: Cinema[];
-    selectedCinemaId: string | null;
 }
 
-export default function AppHeader({
-    auth,
-    cinemas,
-    selectedCinemaId,
-}: AppHeaderProps) {
+export default function AppHeader({ auth }: AppHeaderProps) {
     return (
         <header className="sticky top-0 z-40 border-b border-border/70 bg-background/85 backdrop-blur-xl">
             <div className="mx-auto flex w-full max-w-6xl items-center justify-between gap-4 px-4 py-4 sm:px-6">
@@ -35,10 +29,7 @@ export default function AppHeader({
                 </Link>
 
                 <div className="flex items-center gap-2 sm:gap-3">
-                    <CinemaPicker
-                        cinemas={cinemas}
-                        selectedCinemaId={selectedCinemaId}
-                    />
+                    <CinemaPicker />
 
                     {auth?.user ? (
                         <div className="hidden rounded-2xl border border-border bg-card px-4 py-2 text-sm font-medium sm:block">

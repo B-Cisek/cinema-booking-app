@@ -1,16 +1,13 @@
 import { Head } from '@inertiajs/react';
-import { Armchair, CalendarDays, Clock3, MapPin, Ticket } from 'lucide-react';
+import { CalendarDays, Clock3, MapPin } from 'lucide-react';
+import CinemaHall from '@/components/CinemaHall';
 import { Badge } from '@/components/ui/badge';
-import {
-    Card,
-    CardContent,
-    CardDescription,
-    CardHeader,
-    CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import type { SeatMapRow } from '@/lib/seat-layout';
 
 interface ReservationPageProps {
+    seats: SeatMapRow[];
     screening: {
         id: string;
         starts_at: string;
@@ -32,10 +29,10 @@ interface ReservationPageProps {
     };
 }
 
-const seatRows = ['A', 'B', 'C', 'D'];
-const seatNumbers = [1, 2, 3,];
-
-export default function ReservationPage({ screening }: ReservationPageProps) {
+export default function ReservationPage({
+    screening,
+    seats,
+}: ReservationPageProps) {
     return (
         <>
             <Head title={`Rezerwacja - ${screening.movie.title}`} />
@@ -115,52 +112,7 @@ export default function ReservationPage({ screening }: ReservationPageProps) {
                     </CardContent>
                 </Card>
 
-                <Card className="rounded-[2rem] border-border/70 shadow-lg shadow-primary/5">
-                    <CardHeader className="gap-3 border-b border-border/70 pb-6">
-                        <div className="flex items-center gap-3">
-                            <div className="flex size-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-                                <Armchair className="size-5" />
-                            </div>
-                            <div>
-                                <CardTitle className="text-2xl tracking-tight">
-                                    Wybierz miejsce
-                                </CardTitle>
-                            </div>
-                        </div>
-                    </CardHeader>
-
-                    <CardContent className="space-y-8 px-5 py-6 sm:px-6 sm:py-8">
-                        <div className="mx-auto max-w-3xl rounded-[1.75rem] border border-primary/20 bg-primary/8 px-6 py-5 text-center shadow-inner">
-                            <p className="text-xs font-semibold tracking-[0.35em] text-primary uppercase">
-                                Ekran
-                            </p>
-                            <div className="mt-4 h-3 rounded-full bg-primary/50" />
-                        </div>
-
-                        <div className="mx-auto flex w-full max-w-3xl flex-col gap-4">
-                            {seatRows.map((rowLabel) => (
-                                <div
-                                    key={rowLabel}
-                                    className="grid grid-cols-[3rem_repeat(3,minmax(0,1fr))] items-center gap-3"
-                                >
-                                    <div className="flex h-12 items-center justify-center rounded-2xl border border-border bg-muted/40 text-sm font-semibold">
-                                        {rowLabel}
-                                    </div>
-
-                                    {seatNumbers.map((seatNumber) => (
-                                        <button
-                                            key={`${rowLabel}-${seatNumber}`}
-                                            type="button"
-                                            className="aspect-square w-full max-w-14 justify-self-center rounded-2xl border border-border bg-card text-base font-semibold shadow-sm transition hover:border-primary/50 hover:bg-primary/5"
-                                        >
-                                            {seatNumber}
-                                        </button>
-                                    ))}
-                                </div>
-                            ))}
-                        </div>
-                    </CardContent>
-                </Card>
+                <CinemaHall />
             </section>
         </>
     );

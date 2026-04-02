@@ -5,10 +5,9 @@ declare module '@inertiajs/core' {
     export interface InertiaConfig {
         sharedPageProps: {
             name: string;
-            auth: Auth;
-            selectedCinemaId: string | null;
             cinemas: Cinema[];
-            sidebarOpen: boolean;
+            selectedCinema: Cinema | null;
+            auth: Auth;
             [key: string]: unknown;
         };
     }

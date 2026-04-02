@@ -1,6 +1,6 @@
 <?php
 
-use App\BookingStatus;
+use App\Enums\BookingStatus;
 use App\Models\Screening;
 use App\Models\User;
 use Illuminate\Database\Migrations\Migration;

@@ -37,4 +37,9 @@ class CinemaRepository
     {
         return Cinema::query()->where('cinemas.id', $id)->exists();
     }
+
+    public function getById(string $id): ?Cinema
+    {
+        return Cinema::query()->select('cinemas.id', 'cinemas.street', 'cinemas.city')->find($id);
+    }
 }

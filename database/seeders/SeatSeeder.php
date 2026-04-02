@@ -2,10 +2,10 @@
 
 namespace Database\Seeders;
 
+use App\Enums\RowLabel;
+use App\Enums\SeatType;
 use App\Models\Hall;
 use App\Models\Seat;
-use App\RowLabel;
-use App\SeatType;
 use Illuminate\Database\Seeder;
 
 class SeatSeeder extends Seeder

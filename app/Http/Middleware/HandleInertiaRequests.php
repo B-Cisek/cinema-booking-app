@@ -39,11 +39,15 @@ class HandleInertiaRequests extends Middleware
      */
     public function share(Request $request): array
     {
+        $selectedCinemaId = $request->session()->get(SelectCinemaController::CINEMA_SESSION_KEY);
+
         return [
             ...parent::share($request),
             'name' => config('app.name'),
             'cinemas' => $this->cinemaRepository->getForSelect(),
-            'selectedCinemaId' => $request->session()->get(SelectCinemaController::CINEMA_KEY),
+            'selectedCinema' => $selectedCinemaId
+                ? $this->cinemaRepository->getById($selectedCinemaId)
+                : null,
             'auth' => [
                 'user' => $request->user(),
             ],

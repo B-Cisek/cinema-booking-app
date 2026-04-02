@@ -1,27 +1,55 @@
-import { Head, Link } from '@inertiajs/react';
+import { Head, Link, router, usePage } from '@inertiajs/react';
 import { Clock3, Ticket } from 'lucide-react';
 import { useState } from 'react';
 import ScreeningReservationController from '@/actions/App/Http/Controllers/ScreeningReservationController';
+import CinemaPickerModal from '@/components/CinemaPickerModal';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
+import cinemasRoutes from '@/routes/cinemas';
 import type { Cinema, ScheduleDay, Screening } from '@/types';
 
 interface HomeProps {
-    cinemas: Cinema[];
     scheduleDays: ScheduleDay[];
     screenings: Screening[];
     selectedCinema: Cinema | null;
 }
 
 export default function Home({
-    cinemas,
     scheduleDays,
     screenings,
     selectedCinema,
 }: HomeProps) {
+    const { cinemas } = usePage().props;
     const [activeDate, setActiveDate] = useState(scheduleDays[0]?.date ?? '');
+    const [isCinemaModalOpen, setIsCinemaModalOpen] = useState(false);
+    const [search, setSearch] = useState('');
+    const isCinemaSelectionRequired = selectedCinema === null;
+    const isCinemaModalVisible = isCinemaSelectionRequired || isCinemaModalOpen;
+
+    const handleSelectCinema = (cinema: Cinema): void => {
+        router.post(
+            cinemasRoutes.select(),
+            { id: cinema.id },
+            {
+                preserveScroll: true,
+                onSuccess: () => {
+                    setIsCinemaModalOpen(false);
+                    setSearch('');
+                },
+            },
+        );
+    };
+
+    const handleCinemaModalOpenChange = (open: boolean): void => {
+        if (!open && selectedCinema === null) {
+            return;
+        }
+
+        setIsCinemaModalOpen(open);
+        setSearch('');
+    };
 
     const screeningsForActiveDate = screenings.filter(
         (screening) => screening.date === activeDate,
@@ -74,6 +102,17 @@ export default function Home({
     return (
         <>
             <Head title="Repertuar" />
+
+            <CinemaPickerModal
+                cinemas={cinemas}
+                isOpen={isCinemaModalVisible}
+                onOpenChange={handleCinemaModalOpenChange}
+                onSelect={handleSelectCinema}
+                required={isCinemaSelectionRequired}
+                search={search}
+                selectedCinemaId={selectedCinema?.id ?? null}
+                setSearch={setSearch}
+            />
 
             <section className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-8 sm:px-6">
                 <Card className="overflow-hidden rounded-[2rem] border-border/70 shadow-xl shadow-primary/5">

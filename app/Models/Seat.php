@@ -2,8 +2,8 @@
 
 namespace App\Models;
 
-use App\RowLabel;
-use App\SeatType;
+use App\Enums\RowLabel;
+use App\Enums\SeatType;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;

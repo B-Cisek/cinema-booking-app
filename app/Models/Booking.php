@@ -2,7 +2,7 @@
 
 namespace App\Models;
 
-use App\BookingStatus;
+use App\Enums\BookingStatus;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;

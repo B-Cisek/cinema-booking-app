@@ -6,13 +6,10 @@ import cinemasRoutes from '@/routes/cinemas';
 import type { Cinema } from '@/types';
 
 export default function CinemaPicker() {
-    const { selectedCinemaId, cinemas } = usePage().props;
+    const { selectedCinema, cinemas } = usePage().props;
 
     const [isCinemaModalOpen, setIsCinemaModalOpen] = useState(false);
     const [search, setSearch] = useState('');
-
-    const selectedCinema =
-        cinemas.find((cinema) => cinema.id === selectedCinemaId) ?? null;
 
     const handleSelectCinema = (cinema: Cinema): void => {
         router.post(
@@ -65,7 +62,7 @@ export default function CinemaPicker() {
                 onOpenChange={handleCinemaModalOpenChange}
                 onSelect={handleSelectCinema}
                 search={search}
-                selectedCinemaId={selectedCinemaId}
+                selectedCinemaId={selectedCinema?.id ?? null}
                 setSearch={setSearch}
             />
         </>

@@ -9,7 +9,7 @@ use Illuminate\Http\Request;
 
 class SelectCinemaController extends Controller
 {
-    public const string CINEMA_KEY = 'cinema_id';
+    public const string CINEMA_SESSION_KEY = 'cinema_id';
 
     public function __construct(private readonly CinemaRepository $cinemaRepository) {}
 
@@ -26,7 +26,7 @@ class SelectCinemaController extends Controller
                 InvalidCinemaException::class,
             );
 
-            $request->session()->put(self::CINEMA_KEY, $id);
+            $request->session()->put(self::CINEMA_SESSION_KEY, $id);
         }
 
         return redirect()->route('home');

@@ -2,10 +2,10 @@
 
 namespace Database\Seeders;
 
+use App\Enums\ScreeningStatus;
 use App\Models\Hall;
 use App\Models\Movie;
 use App\Models\Screening;
-use App\ScreeningStatus;
 use Carbon\Carbon;
 use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Seeder;

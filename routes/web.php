@@ -10,3 +10,5 @@ Route::get('/screenings/{screening}/reservation', ScreeningReservationController
     ->name('screenings.reservation');
 Route::post('/cinemas/select', SelectCinemaController::class)
     ->name('cinemas.select');
+
+Route::get('/test', fn() => \Inertia\Inertia::render('Test'));

@@ -3,20 +3,22 @@
 namespace App\Http\Controllers;
 
 use App\Models\Screening;
+use App\Services\ScreeningSeatMap;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class ScreeningReservationController extends Controller
 {
+    public function __construct(private readonly ScreeningSeatMap $screeningSeatMap)
+    {
+    }
+
     public function __invoke(Screening $screening): Response
     {
-        $screening->loadMissing([
-            'hall:id,cinema_id,label',
-            'hall.cinema:id,city,street',
-            'movie:id,title,description,duration,poster_url',
-        ]);
+        $map = $this->screeningSeatMap->for($screening->getKey());
 
-        return Inertia::render('screenings/reservation', [
+        return Inertia::render('Reservation', [
+            'seats' => $map->rows(),
             'screening' => [
                 'id' => $screening->getKey(),
                 'starts_at' => $screening->starts_at->format('H:i'),
