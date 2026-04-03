@@ -1,11 +1,13 @@
 <?php
 
-namespace App\Data;
+declare(strict_types=1);
+
+namespace App\Services\CinemaHall;
 
 use App\Enums\RowLabel;
 use App\Enums\SeatType;
 
-final readonly class SeatView
+final readonly class Seat
 {
     public function __construct(
         public string $id,
@@ -26,10 +28,5 @@ final readonly class SeatView
     public function isAvailable(): bool
     {
         return $this->isActive && ! $this->isBooked;
-    }
-
-    public function isUnavailable(): bool
-    {
-        return ! $this->isAvailable();
     }
 }

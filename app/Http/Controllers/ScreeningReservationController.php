@@ -1,24 +1,24 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Http\Controllers;
 
 use App\Models\Screening;
-use App\Services\ScreeningSeatMap;
+use App\Services\CinemaHall\CinemaHallFactory as ScreeningSeatLayoutFactory;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class ScreeningReservationController extends Controller
 {
-    public function __construct(private readonly ScreeningSeatMap $screeningSeatMap)
-    {
-    }
+    public function __construct(private readonly ScreeningSeatLayoutFactory $screeningSeatLayoutFactory) {}
 
     public function __invoke(Screening $screening): Response
     {
-        $map = $this->screeningSeatMap->for($screening->getKey());
+        $layout = $this->screeningSeatLayoutFactory->forScreening($screening->getKey());
 
         return Inertia::render('Reservation', [
-            'seats' => $map->rows(),
+            'seats' => $layout->rows(),
             'screening' => [
                 'id' => $screening->getKey(),
                 'starts_at' => $screening->starts_at->format('H:i'),

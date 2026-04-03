@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Enums\BookingStatus;
 use App\Models\Screening;
 use App\Models\User;

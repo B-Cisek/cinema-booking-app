@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 return [
 
     /*
@@ -127,5 +129,8 @@ return [
     'selected_cinema_cookie_lifetime_minutes' => env('APP_SELECTED_CINEMA_COOKIE_LIFETIME_MINUTES', 60 * 24 * 30),
     'schedule' => [
         'days_range' => env('APP_SCHEDULE_DAYS_RANGE', 7),
+    ],
+    'hall' => [
+        'max_seats_per_row' => env('APP_HALL_MAX_SEATS_PER_ROW', 25),
     ],
 ];

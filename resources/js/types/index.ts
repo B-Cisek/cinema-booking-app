@@ -48,5 +48,5 @@ export interface SeatMapSeat {
 
 export interface SeatMapRow {
     label: string;
-    seats: SeatMapSeat[];
+    seats: Array<SeatMapSeat | null>;
 }

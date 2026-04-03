@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Enums\ScreeningStatus;
 use App\Models\Hall;
 use App\Models\Movie;

@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 use App\Enums\RowLabel;
 use App\Enums\SeatType;
 use App\Models\Hall;

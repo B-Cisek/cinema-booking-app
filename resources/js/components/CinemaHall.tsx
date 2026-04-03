@@ -6,9 +6,6 @@ interface CinemaHallProps {
     seats: SeatMapRow[];
 }
 
-const ALL_ROWS = Array.from({ length: 12 }, (_, index) =>
-    String.fromCharCode(65 + index),
-);
 const COLUMNS = Array.from({ length: 25 }, (_, index) => index + 1);
 
 const seatTypeClasses: Record<SeatMapSeat['seatType'], string> = {
@@ -20,28 +17,7 @@ const seatTypeClasses: Record<SeatMapSeat['seatType'], string> = {
     couple: 'border-rose-300/70 bg-rose-100/70 hover:border-rose-400 hover:bg-rose-200/70',
 };
 
-function buildSeatPositionMap(
-    seatRows: SeatMapRow[],
-): Map<string, SeatMapSeat> {
-    return new Map(
-        seatRows.flatMap((row) =>
-            row.seats.map(
-                (seat) => [`${seat.posY}-${seat.posX}`, seat] as const,
-            ),
-        ),
-    );
-}
-
 export default function CinemaHall({ seats }: CinemaHallProps) {
-    const seatsByPosition = buildSeatPositionMap(seats);
-    const visibleRows = ALL_ROWS.slice(
-        0,
-        Math.max(
-            ...seats.flatMap((row) => row.seats.map((seat) => seat.posY)),
-            0,
-        ),
-    );
-
     return (
         <Card className="gap-0 rounded-[2rem] border-border/70 shadow-lg shadow-primary/5">
             <CardHeader className="gap-3 border-b border-border/70 py-4">
@@ -65,13 +41,13 @@ export default function CinemaHall({ seats }: CinemaHallProps) {
                 </div>
                 <div className="mx-auto w-full overflow-x-auto pb-2">
                     <div className="flex min-w-max flex-col gap-2 px-1">
-                        {visibleRows.map((rowLabel, rowIndex) => (
+                        {seats.map((row) => (
                             <div
-                                key={rowLabel}
+                                key={row.label}
                                 className="flex items-center gap-2 sm:gap-2.5"
                             >
                                 <div className="flex size-8 shrink-0 items-center justify-center text-[0.7rem] font-semibold tracking-[0.22em] text-muted-foreground uppercase sm:text-xs">
-                                    {rowLabel}
+                                    {row.label}
                                 </div>
                                 <div
                                     className="grid gap-1"
@@ -79,15 +55,11 @@ export default function CinemaHall({ seats }: CinemaHallProps) {
                                         gridTemplateColumns: 'repeat(25, 2rem)',
                                     }}
                                 >
-                                    {COLUMNS.map((column) => {
-                                        const seat = seatsByPosition.get(
-                                            `${rowIndex + 1}-${column}`,
-                                        );
-
+                                    {row.seats.map((seat, index) => {
                                         if (!seat) {
                                             return (
                                                 <div
-                                                    key={`${rowLabel}-${column}`}
+                                                    key={`${row.label}-${COLUMNS[index]}`}
                                                     aria-hidden="true"
                                                     className="size-8"
                                                 />

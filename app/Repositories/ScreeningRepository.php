@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Repositories;
 
 use App\Enums\ScreeningStatus;
@@ -33,5 +35,16 @@ class ScreeningRepository
             ->whereBetween('starts_at', [$dateRangeStart, $dateRangeEnd])
             ->orderBy('starts_at')
             ->get();
+    }
+
+    public function getById(string $screeningId): Screening
+    {
+        return Screening::query()
+            ->with([
+                'hall.seats',
+                'bookings.bookedSeats',
+            ])
+            ->where('screenings.id', $screeningId)
+            ->firstOrFail();
     }
 }

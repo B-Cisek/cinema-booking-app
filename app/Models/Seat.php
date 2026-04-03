@@ -1,9 +1,12 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use App\Enums\RowLabel;
 use App\Enums\SeatType;
+use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
@@ -11,6 +14,18 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @property string $id
+ * @property string $hall_id
+ * @property RowLabel $row_label
+ * @property int $seat_number
+ * @property SeatType $seat_type
+ * @property int $pos_x
+ * @property int $pos_y
+ * @property bool $is_active
+ * @property CarbonImmutable $created_at
+ * @property CarbonImmutable $updated_at
+ */
 #[Table(timestamps: true)]
 #[Fillable(['hall_id', 'row_label', 'seat_number', 'seat_type', 'pos_x', 'pos_y', 'is_active'])]
 class Seat extends Model

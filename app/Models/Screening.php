@@ -1,5 +1,7 @@
 <?php
 
+declare(strict_types=1);
+
 namespace App\Models;
 
 use App\Enums\ScreeningStatus;
@@ -10,6 +12,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
+/**
+ * @property string $id
+ */
 #[Table(timestamps: true)]
 #[Fillable(['movie_id', 'hall_id', 'status', 'starts_at', 'ends_at'])]
 class Screening extends Model
