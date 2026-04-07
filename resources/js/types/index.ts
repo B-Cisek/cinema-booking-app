@@ -34,10 +34,11 @@ export interface Screening {
 }
 
 export type SeatType = 'standard' | 'vip' | 'wheelchair' | 'couple';
+export type Row = 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H' | 'I' | 'J' | 'K' | 'L';
 
-export interface SeatMapSeat {
+export interface Seat {
     id: string;
-    row: string;
+    row: Row;
     seatNumber: number;
     seatType: SeatType;
     posX: number;
@@ -46,7 +47,7 @@ export interface SeatMapSeat {
     isBooked: boolean;
 }
 
-export interface SeatMapRow {
-    label: string;
-    seats: Array<SeatMapSeat | null>;
+export interface HallRow {
+    label: Row;
+    seats: Array<Seat | null>;
 }

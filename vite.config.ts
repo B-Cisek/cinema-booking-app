@@ -19,6 +19,8 @@ export default defineConfig({
         }),
         tailwindcss(),
         wayfinder({
+            command:
+                'TELESCOPE_ENABLED=false SESSION_DRIVER=file CACHE_STORE=file php artisan wayfinder:generate --no-interaction',
             formVariants: true,
         }),
     ],

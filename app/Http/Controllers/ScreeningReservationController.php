@@ -6,15 +6,22 @@ namespace App\Http\Controllers;
 
 use App\Models\Screening;
 use App\Services\CinemaHall\CinemaHallFactory as ScreeningSeatLayoutFactory;
+use App\Services\GuestTokenHandler;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
 
 class ScreeningReservationController extends Controller
 {
-    public function __construct(private readonly ScreeningSeatLayoutFactory $screeningSeatLayoutFactory) {}
+    public function __construct(
+        private readonly ScreeningSeatLayoutFactory $screeningSeatLayoutFactory,
+        private readonly GuestTokenHandler $guestTokenHandler,
+    ) {}
 
-    public function __invoke(Screening $screening): Response
+    public function __invoke(Request $request, Screening $screening): Response
     {
+        $this->guestTokenHandler->setup($request);
+
         $layout = $this->screeningSeatLayoutFactory->forScreening($screening->getKey());
 
         return Inertia::render('Reservation', [

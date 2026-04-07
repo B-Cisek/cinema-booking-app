@@ -12,6 +12,7 @@ use App\Models\Screening;
 use App\Models\Seat;
 use App\Repositories\ScreeningRepository;
 use App\Services\CinemaHall\CinemaHallFactory;
+use App\Services\SeatHoldStore;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use PHPUnit\Framework\Attributes\Test;
 use PHPUnit\Framework\TestCase;
@@ -19,7 +20,7 @@ use PHPUnit\Framework\TestCase;
 class CinemaHallFactoryTest extends TestCase
 {
     #[Test]
-    public function it_creates_a_layout_for_a_screening_with_booked_and_available_seats(): void
+    public function it_creates_a_layout_for_a_screening_with_booked_held_and_available_seats(): void
     {
         $screening = new Screening([
             'id' => 'screening-1',
@@ -27,6 +28,7 @@ class CinemaHallFactoryTest extends TestCase
 
         $screening->setRelation('hall', new Hall([
             'id' => 'hall-1',
+            'cinema_id' => 'cinema-1',
         ]));
 
         $screening->hall->setRelation('seats', collect([
@@ -71,16 +73,24 @@ class CinemaHallFactoryTest extends TestCase
             ->with('screening-1')
             ->willReturn($screening);
 
-        $layout = (new CinemaHallFactory($screeningRepository))->forScreening('screening-1');
+        $seatHoldStore = $this->createMock(SeatHoldStore::class);
+        $seatHoldStore
+            ->expects($this->once())
+            ->method('heldSeatIds')
+            ->with('cinema-1', 'screening-1')
+            ->willReturn(collect(['seat-1']));
+
+        $layout = new CinemaHallFactory($screeningRepository, $seatHoldStore)->forScreening('screening-1');
 
         $this->assertSame(['A1', 'A2', 'B1'], array_map(
             fn (\App\Services\CinemaHall\Seat $seat): string => $seat->label(),
             $layout->all(),
         ));
 
+        $this->assertFalse($layout->seat('A1')->isAvailable());
+        $this->assertTrue($layout->seat('A1')->isBooked);
         $this->assertFalse($layout->seat('A2')->isAvailable());
         $this->assertTrue($layout->seat('A2')->isBooked);
-        $this->assertTrue($layout->seat('A1')->isAvailable());
         $this->assertFalse($layout->seat('B1')->isAvailable());
         $this->assertSame(SeatType::WHEELCHAIR, $layout->seat('B1')->seatType);
     }

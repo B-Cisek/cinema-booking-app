@@ -1,13 +1,17 @@
 import { Head } from '@inertiajs/react';
 import { CalendarDays, Clock3, MapPin } from 'lucide-react';
+import { useState } from 'react';
+import SeatHoldController from '@/actions/App/Http/Controllers/SeatHoldController';
+import SeatReleaseController from '@/actions/App/Http/Controllers/SeatReleaseController';
 import CinemaHall from '@/components/CinemaHall';
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import type { SeatMapRow } from '@/types';
+import client from '@/lib/client';
+import type { HallRow, Seat } from '@/types';
 
 interface ReservationPageProps {
-    seats: SeatMapRow[];
+    seats: HallRow[];
     screening: {
         id: string;
         starts_at: string;
@@ -33,6 +37,53 @@ export default function ReservationPage({
     screening,
     seats,
 }: ReservationPageProps) {
+    const [selectedSeatIds, setSelectedSeatIds] = useState<string[]>([]);
+
+    const selectSeat = (seatId: string): void => {
+        setSelectedSeatIds((current) =>
+            current.includes(seatId) ? current : [...current, seatId],
+        );
+    };
+
+    const deselectSeat = (seatId: string): void => {
+        setSelectedSeatIds((current) =>
+            current.filter((currentSeatId) => currentSeatId !== seatId),
+        );
+    };
+
+    const handleSeatClick = async (seat: Seat): Promise<void> => {
+        if (!seat.isActive || seat.isBooked) {
+            return;
+        }
+
+        if (selectedSeatIds.includes(seat.id)) {
+            deselectSeat(seat.id);
+
+            const response = await client
+                .post(
+                    {
+                        screeningId: screening.id,
+                        seatId: seat.id,
+                    },
+                    SeatReleaseController.url(),
+                )
+                .json();
+
+            console.log(response);
+
+            return;
+        }
+
+        selectSeat(seat.id);
+
+        const response = await client.post({
+            screeningId: screening.id,
+            seatId: seat.id,
+        }, SeatHoldController.url()).json();
+
+        console.log(response);
+    };
+
     return (
         <>
             <Head title={`Rezerwacja - ${screening.movie.title}`} />
@@ -112,7 +163,11 @@ export default function ReservationPage({
                     </CardContent>
                 </Card>
 
-                <CinemaHall seats={seats} />
+                <CinemaHall
+                    seats={seats}
+                    selectedSeatIds={selectedSeatIds}
+                    onSeatClick={handleSeatClick}
+                />
             </section>
         </>
     );

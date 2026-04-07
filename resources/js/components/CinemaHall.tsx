@@ -1,14 +1,16 @@
 import { Armchair } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import type { SeatMapRow, SeatMapSeat } from '@/types';
+import type { HallRow, Seat } from '@/types';
 
 interface CinemaHallProps {
-    seats: SeatMapRow[];
+    seats: HallRow[];
+    selectedSeatIds: string[];
+    onSeatClick: (seat: Seat) => void;
 }
 
 const COLUMNS = Array.from({ length: 25 }, (_, index) => index + 1);
 
-const seatTypeClasses: Record<SeatMapSeat['seatType'], string> = {
+const seatTypeClasses: Record<Seat['seatType'], string> = {
     standard:
         'border-border bg-card hover:border-primary/50 hover:bg-primary/5',
     vip: 'border-amber-300/70 bg-amber-100/70 hover:border-amber-400 hover:bg-amber-200/70',
@@ -17,7 +19,13 @@ const seatTypeClasses: Record<SeatMapSeat['seatType'], string> = {
     couple: 'border-rose-300/70 bg-rose-100/70 hover:border-rose-400 hover:bg-rose-200/70',
 };
 
-export default function CinemaHall({ seats }: CinemaHallProps) {
+export default function CinemaHall({
+    seats,
+    selectedSeatIds,
+    onSeatClick,
+}: CinemaHallProps) {
+    const selectedSeatIdsSet = new Set(selectedSeatIds);
+
     return (
         <Card className="gap-0 rounded-[2rem] border-border/70 shadow-lg shadow-primary/5">
             <CardHeader className="gap-3 border-b border-border/70 py-4">
@@ -31,6 +39,9 @@ export default function CinemaHall({ seats }: CinemaHallProps) {
                         </CardTitle>
                     </div>
                 </div>
+                <p className="text-sm text-muted-foreground">
+                    Kliknij miejsce, aby je zaznaczyć. Ponowne kliknięcie odznacza wybór.
+                </p>
             </CardHeader>
             <CardContent className="space-y-8 px-5 py-6 sm:px-6 sm:py-8">
                 <div className="mx-auto max-w-2xl rounded-[1.75rem] border border-primary/20 bg-primary/8 px-6 py-3 text-center shadow-inner">
@@ -66,18 +77,44 @@ export default function CinemaHall({ seats }: CinemaHallProps) {
                                             );
                                         }
 
+                                        const isUnavailable =
+                                            !seat.isActive || seat.isBooked;
+                                        const isSelected =
+                                            !isUnavailable && selectedSeatIdsSet.has(seat.id);
+                                        const seatClasses = isUnavailable
+                                            ? ''
+                                            : isSelected
+                                              ? 'border-primary bg-primary text-primary-foreground shadow-md shadow-primary/30 hover:border-primary hover:bg-primary hover:text-primary-foreground'
+                                              : seatTypeClasses[seat.seatType];
+                                        const unavailableSeatClasses =
+                                            seat.isBooked
+                                                ? 'cursor-not-allowed border-border/50 bg-muted opacity-70 hover:border-border/50 hover:bg-muted'
+                                                : 'cursor-not-allowed border-border/50 bg-muted text-muted-foreground opacity-60';
+
                                         return (
                                             <button
                                                 key={seat.id}
                                                 type="button"
-                                                disabled={
-                                                    !seat.isActive ||
-                                                    seat.isBooked
+                                                disabled={isUnavailable}
+                                                onClick={() =>
+                                                    onSeatClick(seat)
                                                 }
-                                                aria-label={`Miejsce ${seat.row}${seat.seatNumber}`}
-                                                className={`flex size-8 cursor-pointer items-center justify-center rounded-md border text-xs font-semibold shadow-sm transition sm:text-sm ${seatTypeClasses[seat.seatType]} ${!seat.isActive || seat.isBooked ? 'cursor-not-allowed border-border/50 bg-muted text-muted-foreground opacity-60' : ''}`}
+                                                aria-pressed={isSelected}
+                                                aria-label={`Miejsce ${seat.row}${seat.seatNumber}${seat.isBooked ? ' (zarezerwowane)' : ''}`}
+                                                className={`flex size-8 items-center justify-center rounded-md border text-xs font-semibold shadow-sm transition sm:text-sm ${isUnavailable ? 'cursor-not-allowed' : 'cursor-pointer'} ${seatClasses} ${isUnavailable ? unavailableSeatClasses : ''}`}
                                             >
-                                                {seat.seatNumber}
+                                                <span
+                                                    aria-hidden="true"
+                                                    className={
+                                                        seat.isBooked
+                                                            ? 'text-sm font-bold text-zinc-500 sm:text-base'
+                                                            : undefined
+                                                    }
+                                                >
+                                                    {seat.isBooked
+                                                        ? 'X'
+                                                        : seat.seatNumber}
+                                                </span>
                                             </button>
                                         );
                                     })}
