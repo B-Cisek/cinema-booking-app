@@ -14,7 +14,7 @@ class HallSeeder extends Seeder
      */
     public function run(): void
     {
-        $cinemas = Cinema::all();
+        $cinemas = Cinema::query()->get();
 
         $halls = [
             [
@@ -29,10 +29,19 @@ class HallSeeder extends Seeder
                 'name' => 'hall_3',
                 'label' => 'Sala 3',
             ],
+            [
+                'name' => 'hall_4',
+                'label' => 'Sala 4',
+            ],
         ];
 
         foreach ($halls as $hall) {
-            $cinemas->each(fn (Cinema $cinema) => $cinema->halls()->create($hall));
+            $cinemas->each(function (Cinema $cinema) use ($hall): void {
+                $cinema->halls()->updateOrCreate(
+                    ['name' => $hall['name']],
+                    ['label' => $hall['label']],
+                );
+            });
         }
     }
 }

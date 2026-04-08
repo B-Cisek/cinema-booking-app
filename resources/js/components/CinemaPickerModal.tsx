@@ -38,7 +38,7 @@ export default function CinemaPickerModal({
     return (
         <Dialog open={isOpen} onOpenChange={onOpenChange}>
             <DialogContent
-                className="max-h-[85vh] max-w-2xl gap-0 overflow-hidden rounded-3xl border border-border bg-background p-0 shadow-2xl shadow-primary/10 sm:max-w-2xl"
+                className="flex max-h-[85vh] max-w-2xl flex-col gap-0 overflow-hidden rounded-3xl border border-border bg-background p-0 shadow-2xl shadow-primary/10 sm:max-w-2xl"
                 onEscapeKeyDown={(event) => {
                     if (required) {
                         event.preventDefault();
@@ -64,7 +64,7 @@ export default function CinemaPickerModal({
                     </DialogDescription>
                 </DialogHeader>
 
-                <div className="flex-1 space-y-5 overflow-y-auto px-6 py-5">
+                <div className="flex min-h-0 flex-1 flex-col px-6 py-5">
                     <input
                         type="text"
                         value={search}
@@ -73,50 +73,53 @@ export default function CinemaPickerModal({
                         className="h-12 w-full rounded-2xl border border-input bg-background px-4 text-sm transition outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
                     />
 
-                    <div className="grid gap-3">
-                        {filteredCinemas.map((cinema) => {
-                            const isSelected = selectedCinemaId === cinema.id;
+                    <div className="mt-5 min-h-0 flex-1 overflow-y-auto pr-1">
+                        <div className="grid gap-3">
+                            {filteredCinemas.map((cinema) => {
+                                const isSelected =
+                                    selectedCinemaId === cinema.id;
 
-                            return (
-                                <button
-                                    key={cinema.id}
-                                    type="button"
-                                    onClick={() => onSelect(cinema)}
-                                    className={cn(
-                                        'flex items-center justify-between gap-4 rounded-2xl border px-4 py-4 text-left transition hover:border-primary/60 hover:bg-primary/5',
-                                        isSelected
-                                            ? 'border-primary bg-primary/8'
-                                            : 'border-border bg-card',
-                                    )}
-                                >
-                                    <div className="space-y-1">
-                                        <p className="text-base font-semibold">
-                                            {cinema.city}
-                                        </p>
-                                        <p className="text-sm text-muted-foreground">
-                                            {cinema.street}
-                                        </p>
-                                    </div>
-
-                                    <span
+                                return (
+                                    <button
+                                        key={cinema.id}
+                                        type="button"
+                                        onClick={() => onSelect(cinema)}
                                         className={cn(
-                                            'rounded-full px-3 py-1 text-xs font-semibold tracking-wide',
+                                            'flex items-center justify-between gap-4 rounded-2xl border px-4 py-4 text-left transition hover:border-primary/60 hover:bg-primary/5',
                                             isSelected
-                                                ? 'bg-primary text-primary-foreground'
-                                                : 'bg-secondary text-secondary-foreground',
+                                                ? 'border-primary bg-primary/8'
+                                                : 'border-border bg-card',
                                         )}
                                     >
-                                        {isSelected ? 'Wybrane' : 'Wybierz'}
-                                    </span>
-                                </button>
-                            );
-                        })}
+                                        <div className="space-y-1">
+                                            <p className="text-base font-semibold">
+                                                {cinema.city}
+                                            </p>
+                                            <p className="text-sm text-muted-foreground">
+                                                {cinema.street}
+                                            </p>
+                                        </div>
 
-                        {filteredCinemas.length === 0 ? (
-                            <div className="rounded-2xl border border-dashed border-border bg-muted/40 px-4 py-8 text-center text-sm text-muted-foreground">
-                                Brak wyników dla podanej frazy.
-                            </div>
-                        ) : null}
+                                        <span
+                                            className={cn(
+                                                'rounded-full px-3 py-1 text-xs font-semibold tracking-wide',
+                                                isSelected
+                                                    ? 'bg-primary text-primary-foreground'
+                                                    : 'bg-secondary text-secondary-foreground',
+                                            )}
+                                        >
+                                            {isSelected ? 'Wybrane' : 'Wybierz'}
+                                        </span>
+                                    </button>
+                                );
+                            })}
+
+                            {filteredCinemas.length === 0 ? (
+                                <div className="rounded-2xl border border-dashed border-border bg-muted/40 px-4 py-8 text-center text-sm text-muted-foreground">
+                                    Brak wyników dla podanej frazy.
+                                </div>
+                            ) : null}
+                        </div>
                     </div>
                 </div>
             </DialogContent>

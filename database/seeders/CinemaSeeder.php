@@ -9,12 +9,9 @@ use Illuminate\Database\Seeder;
 
 class CinemaSeeder extends Seeder
 {
-    /**
-     * Run the database seeds.
-     */
     public function run(): void
     {
-        $cities = [
+        $cinemas = [
             [
                 'street' => 'ul. Złota 11',
                 'city' => 'Warszawa',
@@ -31,10 +28,18 @@ class CinemaSeeder extends Seeder
                 'street' => 'ul. Sportowa 12/3',
                 'city' => 'Kraków',
             ],
+            [
+                'street' => 'ul. Grunwaldzka 82',
+                'city' => 'Gdańsk',
+            ],
+            [
+                'street' => 'ul. Piotrkowska 67',
+                'city' => 'Łódź',
+            ],
         ];
 
-        foreach ($cities as $cityData) {
-            Cinema::create($cityData);
+        foreach ($cinemas as $cinemaData) {
+            Cinema::query()->updateOrCreate($cinemaData, $cinemaData);
         }
     }
 }
