@@ -1,6 +1,8 @@
 import { Head } from '@inertiajs/react';
 import { CalendarDays, Clock3, MapPin } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
+import type { WretchError } from 'wretch';
 import SeatHoldController from '@/actions/App/Http/Controllers/SeatHoldController';
 import SeatReleaseController from '@/actions/App/Http/Controllers/SeatReleaseController';
 import CinemaHall from '@/components/CinemaHall';
@@ -38,6 +40,11 @@ interface SeatHoldResponse {
     message: string;
 }
 
+interface SeatConflictResponse {
+    code?: string;
+    message?: string;
+}
+
 const HOLD_DURATION_SECONDS = 300;
 
 function formatRemainingTime(remainingSeconds: number): string {
@@ -51,9 +58,16 @@ export default function ReservationPage({
     screening,
     seats,
 }: ReservationPageProps) {
+    const [layoutSeats, setLayoutSeats] = useState<HallRow[]>(seats);
     const [selectedSeatIds, setSelectedSeatIds] = useState<string[]>([]);
-    const [seatHoldExpirations, setSeatHoldExpirations] = useState<Record<string, number>>({});
+    const [seatHoldExpirations, setSeatHoldExpirations] = useState<
+        Record<string, number>
+    >({});
     const [currentTimestamp, setCurrentTimestamp] = useState<number>(0);
+
+    useEffect(() => {
+        setLayoutSeats(seats);
+    }, [seats]);
 
     useEffect(() => {
         const intervalId = window.setInterval(() => {
@@ -77,6 +91,59 @@ export default function ReservationPage({
         );
     };
 
+    const clearSeatHold = (seatId: string): void => {
+        deselectSeat(seatId);
+        setSeatHoldExpirations((current) => {
+            const next = { ...current };
+
+            delete next[seatId];
+
+            return next;
+        });
+    };
+
+    const markSeatAsBooked = (seatId: string): void => {
+        setLayoutSeats((current) =>
+            current.map((row) => ({
+                ...row,
+                seats: row.seats.map((seat) =>
+                    seat && seat.id === seatId
+                        ? {
+                              ...seat,
+                              isBooked: true,
+                          }
+                        : seat,
+                ),
+            })),
+        );
+    };
+
+    const handleSeatConflict = async (
+        seat: Seat,
+        error: WretchError,
+    ): Promise<boolean> => {
+        if (error.status !== 409) {
+            return false;
+        }
+
+        const response = (await error.response
+            .clone()
+            .json()) as SeatConflictResponse;
+
+        if (
+            response.code !== 'SEAT_ALREADY_BOOKED' &&
+            response.code !== 'SEAT_ALREADY_RESERVED'
+        ) {
+            return false;
+        }
+
+        clearSeatHold(seat.id);
+        markSeatAsBooked(seat.id);
+        toast.error(response.message ?? 'To miejsce jest już zajęte.');
+
+        return true;
+    };
+
     const handleSeatClick = async (seat: Seat): Promise<void> => {
         if (!seat.isActive || seat.isBooked) {
             return;
@@ -93,27 +160,33 @@ export default function ReservationPage({
                 )
                 .json();
 
-            deselectSeat(seat.id);
-            setSeatHoldExpirations((current) => {
-                const next = { ...current };
-
-                delete next[seat.id];
-
-                return next;
-            });
+            clearSeatHold(seat.id);
 
             return;
         }
 
-        await client
-            .post(
-                {
-                    screeningId: screening.id,
-                    seatId: seat.id,
-                },
-                SeatHoldController.url(),
-            )
-            .json<SeatHoldResponse>();
+        try {
+            await client
+                .post(
+                    {
+                        screeningId: screening.id,
+                        seatId: seat.id,
+                    },
+                    SeatHoldController.url(),
+                )
+                .json<SeatHoldResponse>();
+        } catch (error) {
+            if (
+                error instanceof Error &&
+                'status' in error &&
+                'response' in error &&
+                (await handleSeatConflict(seat, error as WretchError))
+            ) {
+                return;
+            }
+
+            throw error;
+        }
 
         selectSeat(seat.id);
         setSeatHoldExpirations((current) => ({
@@ -144,7 +217,9 @@ export default function ReservationPage({
             ? null
             : Math.max(
                   0,
-                  Math.ceil((nearestExpirationTimestamp - currentTimestamp) / 1000),
+                  Math.ceil(
+                      (nearestExpirationTimestamp - currentTimestamp) / 1000,
+                  ),
               );
 
     return (
@@ -227,7 +302,7 @@ export default function ReservationPage({
                 </Card>
 
                 <CinemaHall
-                    seats={seats}
+                    seats={layoutSeats}
                     selectedSeatIds={activeSelectedSeatIds}
                     onSeatClick={handleSeatClick}
                 />
