@@ -28,3 +28,4 @@ USER www-data
 
 FROM base AS production
 COPY --chown=www-data:www-data . /var/www/html
+RUN composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction
