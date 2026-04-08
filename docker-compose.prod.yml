@@ -1,7 +1,7 @@
 services:
   node:
     container_name: cinema-node
-    image: node:14.14.0-alpine
+    image: node:24.14.0-alpine
     working_dir: /var/www/html
     command: sh -c "npm ci && npm run build:ssr"
     volumes:
