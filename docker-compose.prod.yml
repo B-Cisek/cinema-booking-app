@@ -13,11 +13,12 @@ services:
       PHP_DATE_TIMEZONE: "Europe/Warsaw"
       PHP_OPCACHE_ENABLE: "1"
     ports:
-      - "80:8080"
+      - "81:8080"
     labels:
       - traefik.enable=true
-      - traefik.http.routers.frontend-capture-live.rule=Host(`${TRAEFIK_HOST}`)
-      - traefik.http.routers.frontend-capture-live.entrypoints=web
+      - traefik.http.routers.cinema.rule=Host(`${TRAEFIK_HOST}`)
+      - traefik.http.routers.cinema.entrypoints=web
+      - traefik.http.services.cinema.loadbalancer.server.port=81
     networks:
       - cinema
       - traefik
