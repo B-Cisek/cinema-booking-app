@@ -10,15 +10,15 @@ use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 
-class CinemaNotSelectException extends Exception
+class SeatAlreadyReservedException extends Exception
 {
     public function report(): void
     {
-        Log::error('Cinema not selected');
+        Log::notice('Seat already reserved');
     }
 
     public function render(): JsonResponse
     {
-        return JsonResponseFactory::make(ResponseCode::CINEMA_NOT_SELECTED);
+        return new JsonResponseFactory()->make(ResponseCode::SEAT_ALREADY_RESERVED);
     }
 }

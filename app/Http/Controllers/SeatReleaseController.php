@@ -5,7 +5,9 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Actions\SeatRelease;
+use App\Enums\ResponseCode;
 use App\Http\Requests\SeatReleaseRequest;
+use App\Services\JsonResponseFactory;
 use Illuminate\Http\JsonResponse;
 
 class SeatReleaseController extends Controller
@@ -16,6 +18,6 @@ class SeatReleaseController extends Controller
     {
         $this->seatRelease->handle($request);
 
-        return new JsonResponse;
+        return JsonResponseFactory::make(ResponseCode::SEAT_RELEASED);
     }
 }

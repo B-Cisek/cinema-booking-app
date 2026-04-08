@@ -22,7 +22,7 @@ readonly class SeatRelease
     {
         $cinema = $this->cinemaResolver->resolve($request);
 
-        if (! $cinema) {
+        if ($cinema === null) {
             throw new CinemaNotSelectException;
         }
 

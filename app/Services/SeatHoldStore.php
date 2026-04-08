@@ -5,15 +5,27 @@ declare(strict_types=1);
 namespace App\Services;
 
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Redis;
 use Illuminate\Support\Str;
+use Throwable;
 
 class SeatHoldStore
 {
     /** @return Collection<int, string> */
     public function heldSeatIds(string $cinemaId, string $screeningId): Collection
     {
-        $keys = Redis::client()->keys($this->createScreeningPattern($cinemaId, $screeningId));
+        try {
+            $keys = Redis::client()->keys($this->createScreeningPattern($cinemaId, $screeningId));
+        } catch (Throwable $exception) {
+            Log::warning('SEAT_HOLD_STORE_UNAVAILABLE', [
+                'cinema_id' => $cinemaId,
+                'screening_id' => $screeningId,
+                'message' => $exception->getMessage(),
+            ]);
+
+            return collect();
+        }
 
         if (! is_array($keys)) {
             return collect();

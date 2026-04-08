@@ -1,10 +1,11 @@
 import { Head } from '@inertiajs/react';
 import { CalendarDays, Clock3, MapPin } from 'lucide-react';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
 import SeatHoldController from '@/actions/App/Http/Controllers/SeatHoldController';
 import SeatReleaseController from '@/actions/App/Http/Controllers/SeatReleaseController';
 import CinemaHall from '@/components/CinemaHall';
 import { Badge } from '@/components/ui/badge';
+import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import client from '@/lib/client';
@@ -33,11 +34,36 @@ interface ReservationPageProps {
     };
 }
 
+interface SeatHoldResponse {
+    message: string;
+}
+
+const HOLD_DURATION_SECONDS = 300;
+
+function formatRemainingTime(remainingSeconds: number): string {
+    const minutes = Math.floor(remainingSeconds / 60);
+    const seconds = remainingSeconds % 60;
+
+    return `${String(minutes).padStart(2, '0')}:${String(seconds).padStart(2, '0')}`;
+}
+
 export default function ReservationPage({
     screening,
     seats,
 }: ReservationPageProps) {
     const [selectedSeatIds, setSelectedSeatIds] = useState<string[]>([]);
+    const [seatHoldExpirations, setSeatHoldExpirations] = useState<Record<string, number>>({});
+    const [currentTimestamp, setCurrentTimestamp] = useState<number>(0);
+
+    useEffect(() => {
+        const intervalId = window.setInterval(() => {
+            setCurrentTimestamp(Date.now());
+        }, 1000);
+
+        return () => {
+            window.clearInterval(intervalId);
+        };
+    }, []);
 
     const selectSeat = (seatId: string): void => {
         setSelectedSeatIds((current) =>
@@ -56,10 +82,8 @@ export default function ReservationPage({
             return;
         }
 
-        if (selectedSeatIds.includes(seat.id)) {
-            deselectSeat(seat.id);
-
-            const response = await client
+        if (activeSelectedSeatIds.includes(seat.id)) {
+            await client
                 .post(
                     {
                         screeningId: screening.id,
@@ -69,26 +93,65 @@ export default function ReservationPage({
                 )
                 .json();
 
-            console.log(response);
+            deselectSeat(seat.id);
+            setSeatHoldExpirations((current) => {
+                const next = { ...current };
+
+                delete next[seat.id];
+
+                return next;
+            });
 
             return;
         }
 
+        await client
+            .post(
+                {
+                    screeningId: screening.id,
+                    seatId: seat.id,
+                },
+                SeatHoldController.url(),
+            )
+            .json<SeatHoldResponse>();
+
         selectSeat(seat.id);
-
-        const response = await client.post({
-            screeningId: screening.id,
-            seatId: seat.id,
-        }, SeatHoldController.url()).json();
-
-        console.log(response);
+        setSeatHoldExpirations((current) => ({
+            ...current,
+            [seat.id]: Date.now() + HOLD_DURATION_SECONDS * 1000,
+        }));
     };
+
+    const activeExpirationTimestamps = selectedSeatIds
+        .map((seatId) => seatHoldExpirations[seatId])
+        .filter((expiresAt): expiresAt is number => expiresAt !== undefined)
+        .filter((expiresAt) => expiresAt > currentTimestamp);
+    const activeSelectedSeatIds = selectedSeatIds.filter((seatId) => {
+        const expiresAt = seatHoldExpirations[seatId];
+
+        if (!expiresAt) {
+            return false;
+        }
+
+        return expiresAt > currentTimestamp;
+    });
+    const nearestExpirationTimestamp =
+        activeExpirationTimestamps.length > 0
+            ? Math.min(...activeExpirationTimestamps)
+            : null;
+    const remainingSeconds =
+        nearestExpirationTimestamp === null
+            ? null
+            : Math.max(
+                  0,
+                  Math.ceil((nearestExpirationTimestamp - currentTimestamp) / 1000),
+              );
 
     return (
         <>
             <Head title={`Rezerwacja - ${screening.movie.title}`} />
 
-            <section className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-8 sm:px-6">
+            <section className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-8 pb-32 sm:px-6 sm:pb-36">
                 <Card className="overflow-hidden rounded-[2rem] border-border/70 shadow-xl shadow-primary/5">
                     <CardContent className="px-5 py-4 sm:px-6 sm:py-5">
                         <div className="flex flex-col gap-4 md:flex-row md:items-start">
@@ -165,10 +228,50 @@ export default function ReservationPage({
 
                 <CinemaHall
                     seats={seats}
-                    selectedSeatIds={selectedSeatIds}
+                    selectedSeatIds={activeSelectedSeatIds}
                     onSeatClick={handleSeatClick}
                 />
             </section>
+
+            {remainingSeconds !== null && (
+                <div className="fixed right-0 bottom-0 left-0 z-50 border-t border-border/70 bg-background/95 backdrop-blur">
+                    <div className="mx-auto flex w-full max-w-6xl flex-col gap-4 px-4 py-4 sm:flex-row sm:items-center sm:justify-between sm:px-6">
+                        <div className="flex min-w-0 items-center gap-3">
+                            <div className="flex size-11 shrink-0 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                                <Clock3 className="size-5" />
+                            </div>
+                            <div className="min-w-0">
+                                <p className="text-sm font-semibold">
+                                    Wybrane miejsca:{' '}
+                                    {activeSelectedSeatIds.length}
+                                </p>
+                                <p className="text-sm text-muted-foreground">
+                                    Rezerwacja miejsc wygasa za:{' '}
+                                    {formatRemainingTime(remainingSeconds)}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="flex items-center justify-between gap-3 sm:justify-end">
+                            <Badge
+                                variant="outline"
+                                className="h-9 rounded-full px-3 text-sm"
+                            >
+                                <span className="mr-2 text-muted-foreground">
+                                    Miejsca
+                                </span>
+                                {activeSelectedSeatIds.length}
+                            </Badge>
+                            <Button
+                                size="lg"
+                                className="min-w-40 rounded-full px-6"
+                            >
+                                Przejdz dalej
+                            </Button>
+                        </div>
+                    </div>
+                </div>
+            )}
         </>
     );
 }

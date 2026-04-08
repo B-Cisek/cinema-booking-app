@@ -14,20 +14,27 @@ final readonly class SeatHoldService
 
     public const string KEY_PREFIX = 'seat_hold';
 
-    public function hold(string $cinemaId, string $screeningId, string $seatId, string $ownerIdentifier): bool
+    public function hold(string $cinemaId, string $screeningId, string $seatId, string $ownerIdentifier): ?string
     {
         $key = $this->createKey($cinemaId, $screeningId, $seatId);
+        $expiresAt = CarbonImmutable::now()->addSeconds(self::HOLD_SECONDS)->toIso8601String();
         $payload = [
             'owner_identifier' => $ownerIdentifier,
-            'expires_at' => CarbonImmutable::now()->addSeconds(self::HOLD_SECONDS)->toIso8601String(),
+            'expires_at' => $expiresAt,
         ];
 
-        return Redis::client()
+        $wasHeld = Redis::client()
             ->set(
                 key: $key,
                 value: json_encode($payload, JSON_THROW_ON_ERROR),
                 options: ['NX', 'EX' => self::HOLD_SECONDS]
             );
+
+        if (! $wasHeld) {
+            return null;
+        }
+
+        return $expiresAt;
     }
 
     public function release(string $cinemaId, string $screeningId, string $seatId, string $ownerIdentifier): void

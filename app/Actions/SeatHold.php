@@ -6,6 +6,7 @@ namespace App\Actions;
 
 use App\Exceptions\CinemaNotSelectException;
 use App\Exceptions\SeatAlreadyBookedException;
+use App\Exceptions\SeatAlreadyReservedException;
 use App\Repositories\BookingRepository;
 use App\Services\CinemaResolver;
 use App\Services\GuestTokenHandler;
@@ -27,8 +28,9 @@ readonly class SeatHold
         $cinema = $this->cinemaResolver->resolve($request);
         $screeningId = $request->input('screeningId');
         $seatId = $request->input('seatId');
+        $ownerIdentifier = $this->guestTokenHandler->resolve($request);
 
-        if (! $cinema) {
+        if ($cinema === null) {
             throw new CinemaNotSelectException;
         }
 
@@ -38,19 +40,23 @@ readonly class SeatHold
             throw new SeatAlreadyBookedException;
         }
 
-        $result = $this->seatHoldService->hold(
+        $expiresAt = $this->seatHoldService->hold(
             cinemaId: $cinema->getKey(),
-            screeningId: $request->input('screeningId'),
-            seatId: $request->input('seatId'),
-            ownerIdentifier: $this->guestTokenHandler->resolve($request),
+            screeningId: $screeningId,
+            seatId: $seatId,
+            ownerIdentifier: $ownerIdentifier,
         );
 
+        if ($expiresAt === null) {
+            throw new SeatAlreadyReservedException;
+        }
+
         Log::debug('SEAT_HOLD', [
-            'result' => $result,
+            'expires_at' => $expiresAt,
             'cinemaId' => $cinema->getKey(),
-            'screeningId' => $request->input('screeningId'),
-            'seatId' => $request->input('seatId'),
-            'ownerIdentifier' => $this->guestTokenHandler->resolve($request),
+            'screeningId' => $screeningId,
+            'seatId' => $seatId,
+            'ownerIdentifier' => $ownerIdentifier,
         ]);
     }
 }
