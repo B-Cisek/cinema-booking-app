@@ -14,8 +14,6 @@ services:
       PHP_OPCACHE_ENABLE: "1"
     ports:
       - "80:8080"
-    volumes:
-      - ./:/var/www/html
     labels:
       - traefik.enable=true
       - traefik.http.routers.frontend-capture-live.rule=Host(`${TRAEFIK_HOST}`)
