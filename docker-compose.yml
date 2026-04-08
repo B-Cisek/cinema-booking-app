@@ -1,45 +1,27 @@
 services:
-  node:
-    container_name: cinema-node
-    image: node:24.14.0-alpine
-    working_dir: /var/www/html
-    command: sh -c "npm ci && npm run build:ssr"
-    volumes:
-      - ./:/var/www/html
-    networks:
-      - cinema
-
   app:
     container_name: cinema-app
     build:
       context: .
       dockerfile: Dockerfile
-      target: production
+      target: development
       args:
-        AUTORUN_ENABLED: true
+        USER_ID: ${USER_ID:-1000}
+        GROUP_ID: ${GROUP_ID:-1000}
+        AUTORUN_LARAVEL_MIGRATION: ${AUTORUN_LARAVEL_MIGRATION:-false}
         AUTORUN_DEBUG: true
-        AUTORUN_LARAVEL_MIGRATION_SEED: true
     environment:
-      PHP_DATE_TIMEZONE: "Europe/Warsaw"
-      PHP_OPCACHE_ENABLE: "1"
+      PHP_DATE_TIMEZONE: ${APP_TZ:-Europe/Warsaw}
     ports:
       - "80:8080"
+      - "5173:5173"
     volumes:
       - ./:/var/www/html
-    labels:
-      - traefik.enable=true
-      - traefik.http.routers.frontend-capture-live.rule=Host(`${TRAEFIK_HOST}`)
-      - traefik.http.routers.frontend-capture-live.entrypoints=web
     networks:
       - cinema
-      - traefik
     depends_on:
-      node:
-        condition: service_completed_successfully
-      database:
-        condition: service_started
-      redis:
-        condition: service_started
+      - database
+      - redis
 
   database:
     container_name: cinema-database
@@ -74,5 +56,3 @@ volumes:
 networks:
   cinema:
     driver: bridge
-  traefik:
-    external: true

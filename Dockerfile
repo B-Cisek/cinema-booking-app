@@ -3,6 +3,9 @@ FROM serversideup/php:8.5-fpm-nginx AS base
 USER root
 
 RUN apt-get update \
+    && apt-get install curl \
+    && curl -fsSL https://deb.nodesource.com/setup_24.x | bash - \
+    && apt-get install -y nodejs \
     && apt-get upgrade -y \
     && apt-get clean \
     && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
