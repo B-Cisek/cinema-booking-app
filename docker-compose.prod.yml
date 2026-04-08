@@ -3,6 +3,8 @@ services:
     container_name: cinema-node
     image: node:24.14.0-alpine
     working_dir: /var/www/html
+    environment:
+      WAYFINDER_GENERATE: "false"
     command: sh -c "npm ci && npm run build:ssr"
     volumes:
       - ./:/var/www/html

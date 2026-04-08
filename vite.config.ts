@@ -5,6 +5,8 @@ import react from '@vitejs/plugin-react';
 import laravel from 'laravel-vite-plugin';
 import { defineConfig } from 'vite';
 
+const shouldGenerateWayfinder = process.env.WAYFINDER_GENERATE !== 'false';
+
 export default defineConfig({
     plugins: [
         laravel({
@@ -18,10 +20,14 @@ export default defineConfig({
             },
         }),
         tailwindcss(),
-        wayfinder({
-            command:
-                'TELESCOPE_ENABLED=false SESSION_DRIVER=file CACHE_STORE=file php artisan wayfinder:generate --no-interaction',
-            formVariants: true,
-        }),
+        ...(shouldGenerateWayfinder
+            ? [
+                  wayfinder({
+                      command:
+                          'TELESCOPE_ENABLED=false SESSION_DRIVER=file CACHE_STORE=file php artisan wayfinder:generate --no-interaction',
+                      formVariants: true,
+                  }),
+              ]
+            : []),
     ],
 });
