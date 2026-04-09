@@ -36,6 +36,46 @@ class SeatHoldStore
             ->values();
     }
 
+    public function isHeldByOwner(
+        string $cinemaId,
+        string $screeningId,
+        string $seatId,
+        string $ownerIdentifier,
+    ): bool {
+        try {
+            $payload = Redis::client()->get(
+                sprintf(
+                    '%s:%s:%s:%s',
+                    SeatHoldService::KEY_PREFIX,
+                    $cinemaId,
+                    $screeningId,
+                    $seatId,
+                ),
+            );
+        } catch (Throwable $exception) {
+            Log::warning('SEAT_HOLD_STORE_UNAVAILABLE', [
+                'cinema_id' => $cinemaId,
+                'screening_id' => $screeningId,
+                'seat_id' => $seatId,
+                'message' => $exception->getMessage(),
+            ]);
+
+            return false;
+        }
+
+        if (! is_string($payload) || $payload === '') {
+            return false;
+        }
+
+        $decodedPayload = json_decode($payload, true);
+
+        if (! is_array($decodedPayload)) {
+            return false;
+        }
+
+        return ($decodedPayload['owner_identifier'] ?? null) === $ownerIdentifier;
+    }
+
     private function createScreeningPattern(string $cinemaId, string $screeningId): string
     {
         return sprintf('%s:%s:%s:*', SeatHoldService::KEY_PREFIX, $cinemaId, $screeningId);

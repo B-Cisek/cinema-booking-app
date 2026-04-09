@@ -1,4 +1,4 @@
-import { Head } from '@inertiajs/react';
+import { Head, router } from '@inertiajs/react';
 import { CalendarDays, Clock3, MapPin } from 'lucide-react';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
@@ -11,6 +11,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import client from '@/lib/client';
+import screeningsRoutes from '@/routes/screenings';
 import type { HallRow, Seat } from '@/types';
 
 interface ReservationPageProps {
@@ -340,8 +341,20 @@ export default function ReservationPage({
                             <Button
                                 size="lg"
                                 className="min-w-40 rounded-full px-6"
+                                onClick={() =>
+                                    router.get(
+                                        screeningsRoutes.reservationSummary.url(
+                                            screening.id,
+                                            {
+                                                query: {
+                                                    seatIds: activeSelectedSeatIds,
+                                                },
+                                            },
+                                        ),
+                                    )
+                                }
                             >
-                                Przejdz dalej
+                                Przejdź dalej
                             </Button>
                         </div>
                     </div>
