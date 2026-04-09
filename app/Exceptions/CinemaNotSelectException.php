@@ -14,7 +14,7 @@ class CinemaNotSelectException extends Exception
 {
     public function report(): void
     {
-        Log::error('Cinema not selected');
+        Log::info('Cinema not selected');
     }
 
     public function render(): JsonResponse

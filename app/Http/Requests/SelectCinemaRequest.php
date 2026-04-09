@@ -37,9 +37,4 @@ class SelectCinemaRequest extends FormRequest
             'id.uuid' => 'The selected cinema id is invalid.',
         ];
     }
-
-    public function cinemaId(): string
-    {
-        return $this->validated('id');
-    }
 }

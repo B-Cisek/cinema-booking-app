@@ -7,7 +7,7 @@ namespace App\Actions;
 use App\Exceptions\CinemaNotFoundException;
 use App\Repositories\CinemaRepository;
 use App\Services\CinemaResolver;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Session;
 
 readonly class SelectCinema
 {
@@ -21,14 +21,14 @@ readonly class SelectCinema
     /**
      * @throws \Throwable
      */
-    public function handle(Request $request, string $cinemaId): void
+    public function handle(string $cinemaId): void
     {
         throw_unless(
             condition: $this->cinemaRepository->isExist($cinemaId),
             exception: CinemaNotFoundException::class,
         );
 
-        $request->session()->put(self::CINEMA_SESSION_KEY, $cinemaId);
+        Session::put(self::CINEMA_SESSION_KEY, $cinemaId);
         $this->cinemaResolver->queueCookie($cinemaId);
     }
 }

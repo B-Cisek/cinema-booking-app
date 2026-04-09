@@ -11,7 +11,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Config;
 use Illuminate\Support\Facades\Cookie;
 
-final readonly class CinemaResolver
+readonly class CinemaResolver
 {
     private const string REQUEST_ATTRIBUTE_KEY = 'selected_cinema';
 

@@ -14,7 +14,7 @@ class SelectCinemaController extends Controller
 
     public function __invoke(SelectCinemaRequest $request): RedirectResponse
     {
-        $this->selectCinema->handle($request, $request->cinemaId());
+        $this->selectCinema->handle($request->validated('id'));
 
         return redirect()->route('home');
     }

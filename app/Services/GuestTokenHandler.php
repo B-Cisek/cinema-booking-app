@@ -8,7 +8,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cookie;
 use Ramsey\Uuid\Uuid;
 
-final readonly class GuestTokenHandler
+readonly class GuestTokenHandler
 {
     private const string COOKIE_NAME = 'guest-token';
 
