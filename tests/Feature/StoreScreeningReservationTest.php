@@ -30,6 +30,8 @@ class StoreScreeningReservationTest extends TestCase
     #[Test]
     public function it_creates_a_booking_for_the_selected_seats(): void
     {
+        config()->set('seat.prices.standard', 2100);
+        config()->set('seat.prices.vip', 3300);
         $guestToken = Uuid::uuid7()->toString();
         [$cinema, $screening, $firstSeat, $secondSeat] = $this->prepareScreening();
 
@@ -73,6 +75,16 @@ class StoreScreeningReservationTest extends TestCase
             'status' => BookingStatus::CONFIRMED->value,
         ]);
         $this->assertDatabaseCount('booked_seats', 2);
+        $this->assertDatabaseHas('booked_seats', [
+            'booking_id' => $booking->getKey(),
+            'seat_id' => $firstSeat->getKey(),
+            'price' => 2100,
+        ]);
+        $this->assertDatabaseHas('booked_seats', [
+            'booking_id' => $booking->getKey(),
+            'seat_id' => $secondSeat->getKey(),
+            'price' => 3300,
+        ]);
     }
 
     #[Test]

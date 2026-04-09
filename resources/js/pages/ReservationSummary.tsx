@@ -31,7 +31,9 @@ interface ReservationSummaryPageProps {
         row: string;
         seatNumber: number;
         seatType: string;
+        price: number;
     }>;
+    totalPrice: number;
 }
 
 const seatTypeLabels: Record<string, string> = {
@@ -44,6 +46,7 @@ const seatTypeLabels: Record<string, string> = {
 export default function ReservationSummaryPage({
     screening,
     selectedSeats,
+    totalPrice,
 }: ReservationSummaryPageProps) {
     const form = useForm({
         email: '',
@@ -147,7 +150,7 @@ export default function ReservationSummaryPage({
                                     key={seat.id}
                                     className="flex items-center justify-between rounded-2xl border border-border bg-muted/20 px-4 py-3"
                                 >
-                                    <div>
+                                    <div className="min-w-0">
                                         <p className="font-semibold">
                                             Miejsce {seat.label}
                                         </p>
@@ -155,8 +158,13 @@ export default function ReservationSummaryPage({
                                             {seatTypeLabels[seat.seatType] ?? seat.seatType}
                                         </p>
                                     </div>
-                                    <div className="rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary">
-                                        Rząd {seat.row}
+                                    <div className="flex items-center gap-3">
+                                        <div className="rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary">
+                                            Rząd {seat.row}
+                                        </div>
+                                        <p className="text-sm font-semibold text-muted-foreground">
+                                            {formatPrice(seat.price)}
+                                        </p>
                                     </div>
                                 </div>
                             ))}
@@ -210,6 +218,15 @@ export default function ReservationSummaryPage({
                                     Na ten adres zostanie wysłany bilet z potwierdzeniem rezerwacji.
                                 </p>
 
+                                <div className="rounded-2xl border border-border bg-muted/20 px-4 py-4">
+                                    <p className="text-sm text-muted-foreground">
+                                        Suma
+                                    </p>
+                                    <p className="mt-1 text-2xl font-semibold tracking-tight">
+                                        {formatPrice(totalPrice)}
+                                    </p>
+                                </div>
+
                                 {form.errors.seatIds && (
                                     <p className="text-sm text-destructive">
                                         {form.errors.seatIds}
@@ -231,4 +248,11 @@ export default function ReservationSummaryPage({
             </section>
         </>
     );
+}
+
+function formatPrice(price: number): string {
+    return new Intl.NumberFormat('pl-PL', {
+        style: 'currency',
+        currency: 'PLN',
+    }).format(price / 100);
 }

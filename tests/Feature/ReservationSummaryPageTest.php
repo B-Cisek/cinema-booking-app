@@ -25,6 +25,8 @@ class ReservationSummaryPageTest extends TestCase
     #[Test]
     public function it_shows_the_reservation_summary_page_for_selected_seats(): void
     {
+        config()->set('seat.prices.standard', 2200);
+        config()->set('seat.prices.vip', 3400);
         $cinema = Cinema::factory()->create([
             'city' => 'Warszawa',
             'street' => 'ul. Marszałkowska 12',
@@ -90,8 +92,11 @@ class ReservationSummaryPageTest extends TestCase
                 ->has('selectedSeats', 2)
                 ->where('selectedSeats.0.label', 'B4')
                 ->where('selectedSeats.0.seatType', 'standard')
+                ->where('selectedSeats.0.price', 2200)
                 ->where('selectedSeats.1.label', 'B5')
                 ->where('selectedSeats.1.seatType', 'vip')
+                ->where('selectedSeats.1.price', 3400)
+                ->where('totalPrice', 5600)
             );
     }
 

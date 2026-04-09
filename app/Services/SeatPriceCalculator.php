@@ -6,10 +6,14 @@ namespace App\Services;
 
 use App\Models\Seat;
 
-class SeatPriceCalculator
+readonly class SeatPriceCalculator
 {
+    public function __construct(
+        private SeatPriceResolver $seatPriceResolver,
+    ) {}
+
     public function forSeat(Seat $seat): int
     {
-        return 0;
+        return $this->seatPriceResolver->forSeat($seat);
     }
 }

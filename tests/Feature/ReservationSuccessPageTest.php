@@ -42,8 +42,10 @@ class ReservationSuccessPageTest extends TestCase
                 ->where('booking.id', $booking->getKey())
                 ->where('booking.number', $booking->booking_number)
                 ->where('booking.email', 'jan@example.com')
-                ->where('booking.total', 0)
+                ->where('booking.total', 5600)
                 ->has('booking.seats', 2)
+                ->where('booking.seats.0.price', 2200)
+                ->where('booking.seats.1.price', 3400)
                 ->where('screening.id', $screening->getKey())
                 ->where('screening.movie.title', 'Diuna')
             );
@@ -113,13 +115,13 @@ class ReservationSuccessPageTest extends TestCase
         BookedSeat::query()->create([
             'booking_id' => $booking->getKey(),
             'seat_id' => $firstSeat->getKey(),
-            'price' => 0,
+            'price' => 2200,
         ]);
 
         BookedSeat::query()->create([
             'booking_id' => $booking->getKey(),
             'seat_id' => $secondSeat->getKey(),
-            'price' => 0,
+            'price' => 3400,
         ]);
 
         return [$screening, $booking];

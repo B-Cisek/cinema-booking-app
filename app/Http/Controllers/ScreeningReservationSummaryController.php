@@ -8,6 +8,7 @@ use App\Http\Requests\ScreeningReservationSummaryRequest;
 use App\Models\Screening;
 use App\Models\Seat;
 use App\Services\GuestTokenHandler;
+use App\Services\SeatPriceCalculator;
 use Illuminate\Http\Exceptions\HttpResponseException;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -16,6 +17,7 @@ class ScreeningReservationSummaryController extends Controller
 {
     public function __construct(
         private readonly GuestTokenHandler $guestTokenHandler,
+        private readonly SeatPriceCalculator $seatPriceCalculator,
     ) {}
 
     public function __invoke(
@@ -40,6 +42,17 @@ class ScreeningReservationSummaryController extends Controller
             );
         }
 
+        $selectedSeatPayload = $selectedSeats->map(
+            fn (Seat $seat): array => [
+                'id' => $seat->getKey(),
+                'label' => sprintf('%s%s', $seat->row_label->value, $seat->seat_number),
+                'row' => $seat->row_label->value,
+                'seatNumber' => $seat->seat_number,
+                'seatType' => $seat->seat_type->value,
+                'price' => $this->seatPriceCalculator->forSeat($seat),
+            ],
+        )->values();
+
         return Inertia::render('ReservationSummary', [
             'screening' => [
                 'id' => $screening->getKey(),
@@ -60,15 +73,8 @@ class ScreeningReservationSummaryController extends Controller
                     'poster_url' => $screening->movie->poster_url,
                 ],
             ],
-            'selectedSeats' => $selectedSeats->map(
-                fn (Seat $seat): array => [
-                    'id' => $seat->getKey(),
-                    'label' => sprintf('%s%s', $seat->row_label->value, $seat->seat_number),
-                    'row' => $seat->row_label->value,
-                    'seatNumber' => $seat->seat_number,
-                    'seatType' => $seat->seat_type->value,
-                ],
-            )->values()->all(),
+            'selectedSeats' => $selectedSeatPayload->all(),
+            'totalPrice' => $selectedSeatPayload->sum('price'),
         ]);
     }
 }
