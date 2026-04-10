@@ -32,6 +32,15 @@ RUN composer install \
     --ignore-platform-reqs
 
 
+FROM node:${NODE_VERSION}-bookworm-slim AS node_prod_deps
+
+WORKDIR /app
+
+COPY package.json package-lock.json ./
+
+RUN npm ci --omit=dev
+
+
 FROM serversideup/php:8.5-fpm AS assets_builder
 
 ARG NODE_VERSION
@@ -81,13 +90,14 @@ USER www-data
 
 FROM node:${NODE_VERSION}-bookworm-slim AS ssr
 
-ARG NODE_VERSION
-
 WORKDIR /var/www/html
 
 ENV NODE_ENV=production
 ENV HOST=0.0.0.0
 
+COPY --from=node_prod_deps /app/package.json ./package.json
+COPY --from=node_prod_deps /app/package-lock.json ./package-lock.json
+COPY --from=node_prod_deps /app/node_modules ./node_modules
 COPY --from=assets_builder /app/bootstrap/ssr ./bootstrap/ssr
 
 EXPOSE 13714
