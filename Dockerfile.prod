@@ -47,6 +47,8 @@ RUN apt-get update \
 
 WORKDIR /app
 
+RUN chown -R www-data:www-data /app
+
 COPY --chown=www-data:www-data . /app
 COPY --from=composer_build --chown=www-data:www-data /app/vendor /app/vendor
 
