@@ -1,0 +1,91 @@
+ARG COMPOSER_VERSION=2.9.5
+ARG NODE_VERSION=24.14.1
+
+FROM composer:${COMPOSER_VERSION} AS composer_build
+
+WORKDIR /app
+
+COPY composer.json composer.lock ./
+
+RUN composer install \
+    --prefer-dist \
+    --optimize-autoloader \
+    --no-interaction \
+    --no-progress \
+    --no-scripts \
+    --ignore-platform-reqs
+
+
+FROM composer:${COMPOSER_VERSION} AS composer_prod
+
+WORKDIR /app
+
+COPY composer.json composer.lock ./
+
+RUN composer install \
+    --no-dev \
+    --prefer-dist \
+    --optimize-autoloader \
+    --no-interaction \
+    --no-progress \
+    --no-scripts \
+    --ignore-platform-reqs
+
+
+FROM serversideup/php:8.5-fpm AS assets_builder
+
+ARG NODE_VERSION
+
+USER root
+
+RUN apt-get update \
+    && apt-get install -y curl \
+    && curl -fsSL https://deb.nodesource.com/setup_${NODE_VERSION%%.*}.x | bash - \
+    && apt-get install -y nodejs=${NODE_VERSION}-1nodesource1 \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
+
+WORKDIR /app
+
+COPY --chown=www-data:www-data . /app
+COPY --from=composer_build --chown=www-data:www-data /app/vendor /app/vendor
+
+USER www-data
+
+RUN npm ci
+RUN npm run build:ssr
+
+
+FROM serversideup/php:8.5-fpm-nginx AS app
+
+USER root
+
+RUN apt-get update \
+    && apt-get upgrade -y \
+    && apt-get clean \
+    && rm -rf /var/lib/apt/lists/* /tmp/* /var/tmp/* /usr/share/doc/*
+
+RUN install-php-extensions intl bcmath redis
+
+WORKDIR /var/www/html
+
+COPY --chown=www-data:www-data . /var/www/html
+COPY --from=composer_prod --chown=www-data:www-data /app/vendor /var/www/html/vendor
+COPY --from=assets_builder --chown=www-data:www-data /app/public/build /var/www/html/public/build
+COPY --from=assets_builder --chown=www-data:www-data /app/bootstrap/ssr /var/www/html/bootstrap/ssr
+
+USER www-data
+
+
+FROM node:${NODE_VERSION}-bookworm-slim AS ssr
+
+ARG NODE_VERSION
+
+WORKDIR /var/www/html
+
+ENV NODE_ENV=production
+ENV HOST=0.0.0.0
+
+COPY --from=assets_builder /app/bootstrap/ssr ./bootstrap/ssr
+
+EXPOSE 13714
