@@ -18,6 +18,7 @@ services:
       - .env
     labels:
       - traefik.enable=true
+      - traefik.docker.network=traefik
       - traefik.http.routers.cinema.rule=Host(`${TRAEFIK_HOST}`)
       - traefik.http.routers.cinema.entrypoints=websecure
       - traefik.http.routers.cinema.tls=true
