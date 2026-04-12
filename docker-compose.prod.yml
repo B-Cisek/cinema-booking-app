@@ -6,9 +6,15 @@ services:
       dockerfile: Dockerfile.prod
       target: app
     environment:
-      PHP_DATE_TIMEZONE: "Europe/Warsaw"
-      PHP_OPCACHE_ENABLE: "1"
-      INERTIA_SSR_URL: "http://ssr:13714"
+      AUTORUN_ENABLED: ${AUTORUN_ENABLED:-true}
+      AUTORUN_LARAVEL_OPTIMIZE: ${AUTORUN_LARAVEL_OPTIMIZE:-true}
+      AUTORUN_LARAVEL_CONFIG_CACHE: ${AUTORUN_LARAVEL_CONFIG_CACHE:-true}
+      AUTORUN_LARAVEL_MIGRATION: ${AUTORUN_LARAVEL_MIGRATION:-true}
+      AUTORUN_DEBUG: ${AUTORUN_DEBUG:-true}
+      PHP_DATE_TIMEZONE: ${PHP_DATE_TIMEZONE:-Europe/Warsaw}
+      PHP_OPCACHE_ENABLE: ${PHP_OPCACHE_ENABLE:-1}
+    env_file:
+      - .env
     labels:
       - traefik.enable=true
       - traefik.http.routers.cinema.rule=Host(`${TRAEFIK_HOST}`)

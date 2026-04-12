@@ -25,7 +25,3 @@ RUN docker-php-serversideup-set-id www-data $USER_ID:$GROUP_ID && \
     docker-php-serversideup-set-file-permissions --owner $USER_ID:$GROUP_ID
 
 USER www-data
-
-FROM base AS production
-COPY --chown=www-data:www-data . /var/www/html
-RUN composer install --no-dev --prefer-dist --optimize-autoloader --no-interaction

@@ -8,7 +8,6 @@ services:
       args:
         USER_ID: ${USER_ID:-1000}
         GROUP_ID: ${GROUP_ID:-1000}
-        AUTORUN_LARAVEL_MIGRATION: ${AUTORUN_LARAVEL_MIGRATION:-false}
         AUTORUN_DEBUG: true
     environment:
       PHP_DATE_TIMEZONE: ${APP_TZ:-Europe/Warsaw}
