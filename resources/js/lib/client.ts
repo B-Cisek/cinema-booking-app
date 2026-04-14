@@ -1,7 +1,7 @@
 import wretch from 'wretch';
 
 const client = wretch().options({
-    credentials: 'same-origin', // ważne przy sesji Laravel
+    credentials: 'same-origin',
     headers: {
         'X-Requested-With': 'XMLHttpRequest',
         Accept: 'application/json',

@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Http\Middleware\HandleInertiaRequests;
+use App\Http\Middleware\SetLocaleFromBrowser;
 use App\Http\Middleware\Translations;
 use Illuminate\Foundation\Application;
 use Illuminate\Foundation\Configuration\Exceptions;
@@ -28,6 +29,7 @@ return Application::configure(basePath: dirname(__DIR__))
         );
 
         $middleware->web(append: [
+            SetLocaleFromBrowser::class,
             HandleInertiaRequests::class,
             Translations::class,
             AddLinkHeadersForPreloadedAssets::class,
