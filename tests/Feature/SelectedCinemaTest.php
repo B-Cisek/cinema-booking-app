@@ -140,6 +140,9 @@ class SelectedCinemaTest extends TestCase
 
         $response->assertOk()->assertInertia(fn (Assert $page) => $page
             ->component('Home')
+            ->where('globalLang.cinemaPicker.button.desktop', 'Choose location')
+            ->where('globalLang.cinemaPicker.button.mobile', 'Choose cinema')
+            ->where('globalLang.cinemaPicker.modal.header', 'Your cinema')
             ->has('scheduleDays')
             ->has('screenings', 1, fn (Assert $screening) => $screening
                 ->where('id', $selectedScreening->getKey())

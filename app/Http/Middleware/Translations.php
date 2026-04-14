@@ -6,6 +6,7 @@ namespace App\Http\Middleware;
 
 use App\Services\TranslationPropResolver;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Lang;
 use Inertia\Middleware;
 
 class Translations extends Middleware
@@ -14,11 +15,11 @@ class Translations extends Middleware
         private readonly TranslationPropResolver $translationPropResolver,
     ) {}
 
-    public function share(Request $request): array
+    public function shareOnce(Request $request): array
     {
         return [
-            ...parent::share($request),
-            'lang' => $this->translationPropResolver->resolve($request),
+            'globalLang' => fn () => Lang::get('global'),
+            'lang' => fn () => $this->translationPropResolver->resolve($request),
         ];
     }
 }

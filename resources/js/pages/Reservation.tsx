@@ -12,9 +12,9 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import client from '@/lib/client';
 import screeningsRoutes from '@/routes/screenings';
-import type { HallRow, Seat } from '@/types';
+import type { HallRow, Seat, SharedPageProps } from '@/types';
 
-interface ReservationPageProps {
+interface ReservationPageProps extends SharedPageProps{
     seats: HallRow[];
     screening: {
         id: string;
@@ -347,7 +347,8 @@ export default function ReservationPage({
                                             screening.id,
                                             {
                                                 query: {
-                                                    seatIds: activeSelectedSeatIds,
+                                                    seatIds:
+                                                        activeSelectedSeatIds,
                                                 },
                                             },
                                         ),

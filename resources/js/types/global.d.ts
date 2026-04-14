@@ -1,14 +1,7 @@
-import type { Cinema } from '@/types';
-import type { Auth } from '@/types/auth';
+import type { SharedPageProps } from '@/types';
 
 declare module '@inertiajs/core' {
     export interface InertiaConfig {
-        sharedPageProps: {
-            name: string;
-            cinemas: Cinema[];
-            selectedCinema: Cinema | null;
-            auth: Auth;
-            [key: string]: unknown;
-        };
+        sharedPageProps: SharedPageProps;
     }
 }

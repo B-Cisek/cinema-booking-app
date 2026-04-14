@@ -3,12 +3,10 @@ import { Ticket } from 'lucide-react';
 import CinemaPicker from '@/components/CinemaPicker';
 import { Button } from '@/components/ui/button';
 import { home } from '@/routes';
-import type { User } from '@/types';
+import type { Auth } from '@/types';
 
 interface AppHeaderProps {
-    auth?: {
-        user?: User | null;
-    };
+    auth: Auth;
 }
 
 export default function AppHeader({ auth }: AppHeaderProps) {
@@ -31,7 +29,7 @@ export default function AppHeader({ auth }: AppHeaderProps) {
                 <div className="flex items-center gap-2 sm:gap-3">
                     <CinemaPicker />
 
-                    {auth?.user ? (
+                    {auth.user ? (
                         <div className="hidden rounded-2xl border border-border bg-card px-4 py-2 text-sm font-medium sm:block">
                             {auth.user.email}
                         </div>

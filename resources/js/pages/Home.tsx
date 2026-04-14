@@ -1,4 +1,4 @@
-import { Head, Link, router, usePage } from '@inertiajs/react';
+import { Head, Link, router } from '@inertiajs/react';
 import { Clock3, Ticket } from 'lucide-react';
 import { useState } from 'react';
 import ScreeningReservationController from '@/actions/App/Http/Controllers/ScreeningReservationController';
@@ -8,20 +8,27 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import cinemasRoutes from '@/routes/cinemas';
-import type { Cinema, ScheduleDay, Screening } from '@/types';
+import type { Cinema, ScheduleDay, Screening, SharedPageProps } from '@/types';
 
-interface HomeProps {
+export interface HomeLang {
+    screening: string;
+    select_cinema_message: string;
+    select_cinema: string;
+    no_screenings: string;
+}
+
+interface HomeProps extends SharedPageProps<HomeLang> {
     scheduleDays: ScheduleDay[];
     screenings: Screening[];
-    selectedCinema: Cinema | null;
 }
 
 export default function Home({
     scheduleDays,
     screenings,
     selectedCinema,
+    cinemas,
+    lang,
 }: HomeProps) {
-    const { cinemas } = usePage().props;
     const [activeDate, setActiveDate] = useState(scheduleDays[0]?.date ?? '');
     const [isCinemaModalOpen, setIsCinemaModalOpen] = useState(false);
     const [search, setSearch] = useState('');
@@ -142,7 +149,7 @@ export default function Home({
                                             {day.label}
                                         </span>
                                         <span className="text-xs opacity-80">
-                                            {screeningsCount} seansów
+                                            {lang.screening} ({screeningsCount})
                                         </span>
                                     </Button>
                                 );
@@ -159,12 +166,7 @@ export default function Home({
                             </div>
                             <div className="space-y-2">
                                 <p className="text-xl font-semibold">
-                                    Najpierw wybierz kino
-                                </p>
-                                <p className="max-w-lg text-sm leading-6 text-muted-foreground">
-                                    Użyj pickera w headerze, aby wskazać
-                                    lokalizację i zobaczyć repertuar na kolejne
-                                    7 dni.
+                                    {lang.select_cinema}
                                 </p>
                             </div>
                         </CardContent>
@@ -177,12 +179,7 @@ export default function Home({
                             </div>
                             <div className="space-y-2">
                                 <p className="text-xl font-semibold">
-                                    Brak seansów w tym dniu
-                                </p>
-                                <p className="max-w-lg text-sm leading-6 text-muted-foreground">
-                                    Dla {selectedCinema.city} nie ma jeszcze
-                                    zaplanowanych projekcji na wybraną datę.
-                                    Sprawdź inny dzień z listy powyżej.
+                                    {lang.no_screenings}
                                 </p>
                             </div>
                         </CardContent>

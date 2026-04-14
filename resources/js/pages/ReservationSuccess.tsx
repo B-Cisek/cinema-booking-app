@@ -3,8 +3,9 @@ import { CalendarDays, CheckCircle2, Mail, MapPin, Ticket } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { home } from '@/routes';
+import { SharedPageProps } from '@/types';
 
-interface ReservationSuccessPageProps {
+interface ReservationSuccessPageProps extends SharedPageProps{
     booking: {
         id: string;
         number: string;
@@ -67,7 +68,9 @@ export default function ReservationSuccessPage({
                                         {screening.movie.title}
                                     </h1>
                                     <p className="text-sm leading-6 text-muted-foreground">
-                                        Numer rezerwacji: {booking.number}. Potwierdzenie zostało przygotowane dla adresu {booking.email}.
+                                        Numer rezerwacji: {booking.number}.
+                                        Potwierdzenie zostało przygotowane dla
+                                        adresu {booking.email}.
                                     </p>
                                 </div>
 
@@ -89,7 +92,8 @@ export default function ReservationSuccessPage({
                                             Seans
                                         </p>
                                         <p className="mt-1.5 font-semibold">
-                                            {screening.starts_at} - {screening.ends_at}
+                                            {screening.starts_at} -{' '}
+                                            {screening.ends_at}
                                         </p>
                                     </div>
 
@@ -100,7 +104,9 @@ export default function ReservationSuccessPage({
                                         <div className="mt-1.5 flex items-start gap-2">
                                             <MapPin className="mt-0.5 size-4 text-primary" />
                                             <p className="font-semibold">
-                                                {screening.hall.label}, {screening.hall.cinema.city}, {screening.hall.cinema.street}
+                                                {screening.hall.label},{' '}
+                                                {screening.hall.cinema.city},{' '}
+                                                {screening.hall.cinema.street}
                                             </p>
                                         </div>
                                     </div>
@@ -169,10 +175,12 @@ export default function ReservationSuccessPage({
                                 </p>
                             </div>
 
-                            <Button asChild size="lg" className="h-12 w-full rounded-full text-base">
-                                <Link href={home()}>
-                                    Wróć do repertuaru
-                                </Link>
+                            <Button
+                                asChild
+                                size="lg"
+                                className="h-12 w-full rounded-full text-base"
+                            >
+                                <Link href={home()}>Wróć do repertuaru</Link>
                             </Button>
                         </CardContent>
                     </Card>

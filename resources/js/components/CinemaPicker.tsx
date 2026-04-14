@@ -3,10 +3,11 @@ import { MapPin } from 'lucide-react';
 import { useState } from 'react';
 import CinemaPickerModal from '@/components/CinemaPickerModal';
 import cinemasRoutes from '@/routes/cinemas';
-import type { Cinema } from '@/types';
+import type { Cinema, SharedPageProps } from '@/types';
 
 export default function CinemaPicker() {
-    const { selectedCinema, cinemas } = usePage().props;
+    const { selectedCinema, cinemas, globalLang } =
+        usePage<SharedPageProps>().props;
 
     const [isCinemaModalOpen, setIsCinemaModalOpen] = useState(false);
     const [search, setSearch] = useState('');
@@ -45,13 +46,15 @@ export default function CinemaPicker() {
                     <p className="truncate text-sm font-semibold">
                         {selectedCinema
                             ? `${selectedCinema.city}, ${selectedCinema.street}`
-                            : 'Wybierz lokalizację'}
+                            : globalLang.button.cinema_picker}
                     </p>
                 </div>
 
                 <div className="sm:hidden">
                     <p className="text-sm font-semibold">
-                        {selectedCinema ? selectedCinema.city : 'Wybierz kino'}
+                        {selectedCinema
+                            ? selectedCinema.city
+                            : globalLang.button.cinema_picker}
                     </p>
                 </div>
             </button>

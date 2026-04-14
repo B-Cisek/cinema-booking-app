@@ -4,8 +4,9 @@ import type { FormEvent } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import screeningsRoutes from '@/routes/screenings';
+import type { SharedPageProps } from '@/types';
 
-interface ReservationSummaryPageProps {
+interface ReservationSummaryPageProps extends SharedPageProps{
     screening: {
         id: string;
         starts_at: string;
@@ -79,7 +80,9 @@ export default function ReservationSummaryPage({
                                         Podsumowanie rezerwacji
                                     </h1>
                                     <p className="text-sm leading-6 text-muted-foreground">
-                                        Sprawdź wybrane miejsca i podaj adres e-mail, na który wyślemy potwierdzenie kolejnego kroku rezerwacji.
+                                        Sprawdź wybrane miejsca i podaj adres
+                                        e-mail, na który wyślemy potwierdzenie
+                                        kolejnego kroku rezerwacji.
                                     </p>
                                 </div>
 
@@ -107,7 +110,8 @@ export default function ReservationSummaryPage({
                                             <div className="flex items-center gap-2 text-sm text-muted-foreground">
                                                 <Clock3 className="size-4 text-primary" />
                                                 <p>
-                                                    {screening.starts_at} - {screening.ends_at}
+                                                    {screening.starts_at} -{' '}
+                                                    {screening.ends_at}
                                                 </p>
                                             </div>
                                         </div>
@@ -120,7 +124,9 @@ export default function ReservationSummaryPage({
                                         <div className="mt-1.5 flex items-start gap-2">
                                             <MapPin className="mt-0.5 size-4 text-primary" />
                                             <p className="font-semibold">
-                                                {screening.hall.label}, {screening.hall.cinema.city}, {screening.hall.cinema.street}
+                                                {screening.hall.label},{' '}
+                                                {screening.hall.cinema.city},{' '}
+                                                {screening.hall.cinema.street}
                                             </p>
                                         </div>
                                     </div>
@@ -155,7 +161,8 @@ export default function ReservationSummaryPage({
                                             Miejsce {seat.label}
                                         </p>
                                         <p className="text-sm text-muted-foreground">
-                                            {seatTypeLabels[seat.seatType] ?? seat.seatType}
+                                            {seatTypeLabels[seat.seatType] ??
+                                                seat.seatType}
                                         </p>
                                     </div>
                                     <div className="flex items-center gap-3">
@@ -205,7 +212,7 @@ export default function ReservationSummaryPage({
                                             )
                                         }
                                         placeholder="np. jan.kowalski@example.com"
-                                        className="flex h-12 w-full rounded-2xl border border-input bg-background px-4 text-sm shadow-sm outline-none transition placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/20"
+                                        className="flex h-12 w-full rounded-2xl border border-input bg-background px-4 text-sm shadow-sm transition outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/20"
                                     />
                                     {form.errors.email && (
                                         <p className="text-sm text-destructive">
@@ -215,7 +222,8 @@ export default function ReservationSummaryPage({
                                 </div>
 
                                 <p className="text-sm leading-6 text-muted-foreground">
-                                    Na ten adres zostanie wysłany bilet z potwierdzeniem rezerwacji.
+                                    Na ten adres zostanie wysłany bilet z
+                                    potwierdzeniem rezerwacji.
                                 </p>
 
                                 <div className="rounded-2xl border border-border bg-muted/20 px-4 py-4">
@@ -239,7 +247,9 @@ export default function ReservationSummaryPage({
                                     className="h-12 w-full rounded-full text-base"
                                     disabled={form.processing}
                                 >
-                                    {form.processing ? 'Rezerwowanie...' : 'Rezerwuj'}
+                                    {form.processing
+                                        ? 'Rezerwowanie...'
+                                        : 'Rezerwuj'}
                                 </Button>
                             </form>
                         </CardContent>

@@ -1,3 +1,5 @@
+import type { Auth } from './auth';
+
 export type * from './auth';
 
 export interface Cinema {
@@ -23,6 +25,21 @@ export interface ScreeningHall {
     label: string;
 }
 
+export interface GlobalLang {
+    button: {
+        cinema_picker: string;
+    };
+    modal: {
+        header: string;
+        title: string;
+        description: string;
+        select: string;
+        selected: string;
+        empty_result: string;
+        input_placeholder: string;
+    };
+}
+
 export interface Screening {
     id: string;
     date: string;
@@ -34,7 +51,19 @@ export interface Screening {
 }
 
 export type SeatType = 'standard' | 'vip' | 'wheelchair' | 'couple';
-export type Row = 'A' | 'B' | 'C' | 'D' | 'E' | 'F' | 'G' | 'H' | 'I' | 'J' | 'K' | 'L';
+export type Row =
+    | 'A'
+    | 'B'
+    | 'C'
+    | 'D'
+    | 'E'
+    | 'F'
+    | 'G'
+    | 'H'
+    | 'I'
+    | 'J'
+    | 'K'
+    | 'L';
 
 export interface Seat {
     id: string;
@@ -51,3 +80,15 @@ export interface HallRow {
     label: Row;
     seats: Array<Seat | null>;
 }
+
+export interface SharedPageProps<TLang = Record<string, unknown>> {
+    [key: string]: unknown;
+    name: string;
+    cinemas: Cinema[];
+    selectedCinema: Cinema | null;
+    globalLang: GlobalLang;
+    auth: Auth;
+    lang: TLang;
+}
+
+export type PageProps = SharedPageProps;

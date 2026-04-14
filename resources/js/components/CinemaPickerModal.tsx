@@ -1,3 +1,4 @@
+import { usePage } from '@inertiajs/react';
 import {
     Dialog,
     DialogContent,
@@ -7,6 +8,16 @@ import {
 } from '@/components/ui/dialog';
 import { cn } from '@/lib/utils';
 import type { Cinema } from '@/types';
+
+export interface CinemaPickerModalLang {
+    header: string;
+    title: string;
+    description: string;
+    select: string;
+    selected: string;
+    empty_result: string;
+    input_placeholder: string;
+}
 
 interface CinemaPickerModalProps {
     cinemas: Cinema[];
@@ -29,6 +40,8 @@ export default function CinemaPickerModal({
     selectedCinemaId,
     setSearch,
 }: CinemaPickerModalProps) {
+    const props = usePage().props
+
     const filteredCinemas = cinemas.filter((cinema) =>
         `${cinema.city} ${cinema.street}`
             .toLowerCase()
@@ -53,14 +66,13 @@ export default function CinemaPickerModal({
             >
                 <DialogHeader className="border-b border-border px-6 py-5 text-left">
                     <p className="text-xs font-semibold tracking-[0.28em] text-primary uppercase">
-                        Twoje kino
+                        {props.globalLang.modal.header}
                     </p>
                     <DialogTitle className="text-2xl font-semibold tracking-tight">
-                        Wybierz lokalizację
+                        {props.globalLang.modal.title}
                     </DialogTitle>
                     <DialogDescription className="text-sm">
-                        Zmienisz kino dla repertuaru i kolejnych kroków
-                        rezerwacji.
+                        {props.globalLang.modal.description}
                     </DialogDescription>
                 </DialogHeader>
 
@@ -69,7 +81,7 @@ export default function CinemaPickerModal({
                         type="text"
                         value={search}
                         onChange={(event) => setSearch(event.target.value)}
-                        placeholder="Szukaj miasta lub ulicy"
+                        placeholder={props.globalLang.modal.input_placeholder}
                         className="h-12 w-full rounded-2xl border border-input bg-background px-4 text-sm transition outline-none focus-visible:border-ring focus-visible:ring-3 focus-visible:ring-ring/50"
                     />
 
@@ -108,7 +120,10 @@ export default function CinemaPickerModal({
                                                     : 'bg-secondary text-secondary-foreground',
                                             )}
                                         >
-                                            {isSelected ? 'Wybrane' : 'Wybierz'}
+                                            {isSelected
+                                                ? props.globalLang.modal
+                                                      .selected
+                                                : props.globalLang.modal.select}
                                         </span>
                                     </button>
                                 );
@@ -116,7 +131,7 @@ export default function CinemaPickerModal({
 
                             {filteredCinemas.length === 0 ? (
                                 <div className="rounded-2xl border border-dashed border-border bg-muted/40 px-4 py-8 text-center text-sm text-muted-foreground">
-                                    Brak wyników dla podanej frazy.
+                                    {props.globalLang.modal.empty_result}
                                 </div>
                             ) : null}
                         </div>

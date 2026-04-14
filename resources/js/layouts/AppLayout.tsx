@@ -1,12 +1,13 @@
 import { usePage } from '@inertiajs/react';
 import { router } from '@inertiajs/react';
-import type { PropsWithChildren} from 'react';
+import type { PropsWithChildren } from 'react';
 import { useEffect } from 'react';
 import { toast } from 'sonner';
 import AppHeader from '@/components/AppHeader';
 import { Toaster } from '@/components/ui/sonner';
+import type { PageProps } from '@/types';
 
- interface FlashMessages {
+interface FlashMessages {
     success?: string;
     error?: string;
     info?: string;
@@ -23,12 +24,14 @@ const flashHandlers = {
 } as const;
 
 export default function AppLayout({ children }: PropsWithChildren) {
-    const { auth } = usePage().props
+    const { auth } = usePage<PageProps>().props;
 
     useEffect(() => {
         const removeListener = router.on('flash', (event) => {
-            const flash  = event.detail.flash as FlashMessages;
-            const entries = Object.entries(flash) as Array<[keyof typeof flashHandlers, string]>;
+            const flash = event.detail.flash as FlashMessages;
+            const entries = Object.entries(flash) as Array<
+                [keyof typeof flashHandlers, string]
+            >;
 
             if (entries.length === 0) {
                 return;
@@ -37,11 +40,11 @@ export default function AppLayout({ children }: PropsWithChildren) {
             for (const [level, message] of entries) {
                 flashHandlers[level](message);
             }
-        })
+        });
 
         return () => {
             removeListener();
-        }
+        };
     }, []);
 
     return (
@@ -53,7 +56,7 @@ export default function AppLayout({ children }: PropsWithChildren) {
 
             <AppHeader auth={auth} />
             <main>{children}</main>
-            <Toaster closeButton richColors position="top-center"/>
+            <Toaster closeButton richColors position="top-center" />
         </div>
     );
 }

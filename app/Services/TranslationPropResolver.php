@@ -12,10 +12,10 @@ use Illuminate\Support\Str;
 use ReflectionException;
 use ReflectionMethod;
 
-final class TranslationPropResolver
+readonly class TranslationPropResolver
 {
     public function __construct(
-        private readonly Translator $translator,
+        private Translator $translator,
     ) {}
 
     /**
