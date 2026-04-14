@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Actions;
 
 use App\Enums\BookingStatus;
+use App\Mail\SendTicket;
 use App\Models\Booking;
 use App\Models\Screening;
 use App\Models\Seat;
@@ -17,6 +18,7 @@ use App\Services\SeatPriceCalculator;
 use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
 
@@ -101,6 +103,14 @@ readonly class CreateScreeningReservation
 
             return $booking;
         });
+
+        $booking->loadMissing([
+            'screening.movie',
+            'screening.hall.cinema',
+            'bookedSeats.seat',
+        ]);
+
+        Mail::to($booking->customer_email)->queue(new SendTicket($booking));
 
         return $booking;
     }

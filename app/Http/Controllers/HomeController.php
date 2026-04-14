@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
+use App\Attributes\UseTranslations;
 use App\Queries\GetHomeScreeningsQuery;
 use App\Services\CinemaResolver;
 use App\Services\ScheduleDaysFactory;
@@ -20,6 +21,7 @@ class HomeController extends Controller
         private readonly CinemaResolver $selectedCinemaResolver,
     ) {}
 
+    #[UseTranslations(key: 'home')]
     public function __invoke(Request $request): Response|ResponseFactory
     {
         $selectedCinema = $this->selectedCinemaResolver->resolve($request);

@@ -7,11 +7,11 @@ namespace App\Queries;
 use App\Repositories\ScreeningRepository;
 use App\Services\ScheduleDaysFactory;
 
-class GetHomeScreeningsQuery
+readonly class GetHomeScreeningsQuery
 {
     public function __construct(
-        private readonly ScreeningRepository $repository,
-        private readonly ScheduleDaysFactory $scheduleDaysFactory,
+        private ScreeningRepository $repository,
+        private ScheduleDaysFactory $scheduleDaysFactory,
     ) {}
 
     /**

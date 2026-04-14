@@ -69,6 +69,8 @@ RUN npm run build:ssr
 
 FROM serversideup/php:8.5-fpm-nginx AS app
 
+COPY .docker/php/z-custom.ini /usr/local/etc/php/conf.d/
+
 USER root
 
 RUN apt-get update \

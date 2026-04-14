@@ -8,7 +8,6 @@ use App\Enums\RowLabel;
 use App\Enums\SeatType;
 use App\Models\Seat;
 use App\Services\SeatPriceCalculator;
-use Illuminate\Support\Facades\Config;
 use PHPUnit\Framework\Attributes\Test;
 use RuntimeException;
 use Tests\TestCase;

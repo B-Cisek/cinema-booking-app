@@ -18,6 +18,7 @@ storage/framework/views/*
 !storage/framework/views/.gitignore
 bootstrap/cache/*
 !bootstrap/cache/.gitignore
+bootstrap/ssr
 .env
 .env.*
 !.env.example

@@ -27,6 +27,7 @@ services:
     networks:
       - cinema
       - traefik
+    restart: unless-stopped
     depends_on:
       database:
         condition: service_healthy
@@ -44,6 +45,7 @@ services:
     command: ["node", "bootstrap/ssr/app.js"]
     expose:
       - "13714"
+    restart: unless-stopped
     networks:
       - cinema
 
@@ -57,8 +59,7 @@ services:
       PGDATA: /var/lib/postgresql/data/pgdata
     volumes:
       - postgres_data:/var/lib/postgresql/data
-    ports:
-      - "5432:5432"
+    restart: unless-stopped
     healthcheck:
       test: [ "CMD-SHELL", "pg_isready -U ${DB_USERNAME:-cinema} -d ${DB_DATABASE:-cinema}" ]
       interval: 5s
@@ -73,8 +74,7 @@ services:
     command: redis-server --appendonly yes --requirepass ${REDIS_PASSWORD:-password}
     volumes:
       - redis_data:/data
-    ports:
-      - "6379:6379"
+    restart: unless-stopped
     healthcheck:
       test: [ "CMD", "redis-cli", "-a", "${REDIS_PASSWORD:-password}", "ping" ]
       interval: 5s

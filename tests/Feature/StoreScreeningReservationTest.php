@@ -9,6 +9,7 @@ use App\Enums\BookingStatus;
 use App\Enums\RowLabel;
 use App\Enums\ScreeningStatus;
 use App\Enums\SeatType;
+use App\Mail\SendTicket;
 use App\Models\Booking;
 use App\Models\Cinema;
 use App\Models\Hall;
@@ -18,6 +19,7 @@ use App\Models\Seat;
 use App\Services\SeatHoldStore;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Redis;
 use PHPUnit\Framework\Attributes\Test;
 use Ramsey\Uuid\Uuid;
@@ -32,6 +34,7 @@ class StoreScreeningReservationTest extends TestCase
     {
         config()->set('seat.prices.standard', 2100);
         config()->set('seat.prices.vip', 3300);
+        Mail::fake();
         $guestToken = Uuid::uuid7()->toString();
         [$cinema, $screening, $firstSeat, $secondSeat] = $this->prepareScreening();
 
@@ -85,6 +88,11 @@ class StoreScreeningReservationTest extends TestCase
             'seat_id' => $secondSeat->getKey(),
             'price' => 3300,
         ]);
+
+        Mail::assertQueued(SendTicket::class, function (SendTicket $mail) use ($booking): bool {
+            return $mail->hasTo('jan@example.com')
+                && $mail->booking->is($booking);
+        });
     }
 
     #[Test]
