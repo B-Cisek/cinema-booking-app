@@ -7,6 +7,7 @@ namespace App\Models;
 use App\Enums\BookingStatus;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Table;
+use Illuminate\Database\Eloquent\Collection;
 use Illuminate\Database\Eloquent\Concerns\HasUuids;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -24,6 +25,7 @@ use Illuminate\Support\Carbon;
  * @property Carbon $updated_at
  * @property Screening $screening
  * @property User $user
+ * @property Collection<BookedSeat> $bookedSeats
  */
 #[Table(timestamps: true)]
 #[Fillable(['user_id', 'screening_id', 'booking_number', 'status', 'customer_email'])]

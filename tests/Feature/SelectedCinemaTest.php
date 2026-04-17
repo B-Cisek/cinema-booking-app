@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
-use App\Actions\SelectCinema;
+use App\Commands\SelectCinema;
 use App\Enums\ScreeningStatus;
 use App\Exceptions\CinemaNotFoundException;
 use App\Models\Cinema;
@@ -140,9 +140,7 @@ class SelectedCinemaTest extends TestCase
 
         $response->assertOk()->assertInertia(fn (Assert $page) => $page
             ->component('Home')
-            ->where('globalLang.cinemaPicker.button.desktop', 'Choose location')
-            ->where('globalLang.cinemaPicker.button.mobile', 'Choose cinema')
-            ->where('globalLang.cinemaPicker.modal.header', 'Your cinema')
+            ->where('globalLang.button.cinema_picker', 'Wybierz kino')
             ->has('scheduleDays')
             ->has('screenings', 1, fn (Assert $screening) => $screening
                 ->where('id', $selectedScreening->getKey())

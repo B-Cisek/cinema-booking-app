@@ -22,6 +22,8 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
  * @property CarbonImmutable $ends_at
  * @property CarbonImmutable $created_at
  * @property CarbonImmutable $updated_at
+ * @property Hall $hall
+ * @property Movie $movie
  */
 #[Table(timestamps: true)]
 #[Fillable(['movie_id', 'hall_id', 'status', 'starts_at', 'ends_at'])]

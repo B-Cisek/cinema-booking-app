@@ -5,26 +5,25 @@ declare(strict_types=1);
 namespace App\Queries;
 
 use App\Repositories\ScreeningRepository;
-use App\Services\ScheduleDaysFactory;
+use Carbon\CarbonImmutable;
 
 readonly class GetHomeScreeningsQuery
 {
     public function __construct(
         private ScreeningRepository $repository,
-        private ScheduleDaysFactory $scheduleDaysFactory,
     ) {}
 
     /**
      * @return array<int, array<string, mixed>>
      */
-    public function execute(string $cinemaId): array
+    public function execute(string $cinemaId, CarbonImmutable $startsAt, CarbonImmutable $endsAt): array
     {
         $screenings = [];
 
         $collection = $this->repository->getForHomePage(
             $cinemaId,
-            $this->scheduleDaysFactory->startsAt(),
-            $this->scheduleDaysFactory->endsAt(),
+            $startsAt,
+            $endsAt,
         );
 
         foreach ($collection as $screening) {

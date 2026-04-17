@@ -4,10 +4,9 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Attributes\UseTranslations;
-use App\Queries\GetHomeScreeningsQuery;
-use App\Services\CinemaResolver;
-use App\Services\ScheduleDaysFactory;
+use App\Support\Identity\CinemaResolver;
+use App\Support\Translation\UseTranslations;
+use App\ViewData\HomePageData;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -16,23 +15,19 @@ use Inertia\ResponseFactory;
 class HomeController extends Controller
 {
     public function __construct(
-        private readonly ScheduleDaysFactory $scheduleDaysFactory,
-        private readonly GetHomeScreeningsQuery $screeningsQuery,
-        private readonly CinemaResolver $selectedCinemaResolver,
+        private readonly CinemaResolver $cinemaResolver,
+        private readonly HomePageData $data
     ) {}
 
     #[UseTranslations(key: 'home')]
     public function __invoke(Request $request): Response|ResponseFactory
     {
-        $selectedCinema = $this->selectedCinemaResolver->resolve($request);
+        $cinema = $this->cinemaResolver->resolve($request);
 
-        if ($selectedCinema === null) {
+        if ($cinema === null) {
             Inertia::flash('error', __('home.select_cinema_message'));
         }
 
-        return Inertia::render('Home', [
-            'scheduleDays' => $this->scheduleDaysFactory->make(),
-            'screenings' => $selectedCinema ? $this->screeningsQuery->execute($selectedCinema->getKey()) : [],
-        ]);
+        return Inertia::render('Home', $this->data->build($cinema));
     }
 }

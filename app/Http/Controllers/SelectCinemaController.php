@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Actions\SelectCinema;
+use App\Commands\SelectCinema;
 use App\Http\Requests\SelectCinemaRequest;
 use Illuminate\Http\RedirectResponse;
 

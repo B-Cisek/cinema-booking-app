@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
-use App\Actions\SelectCinema;
+use App\Commands\SelectCinema;
 use App\Enums\BookingStatus;
 use App\Enums\RowLabel;
 use App\Enums\ScreeningStatus;
@@ -16,7 +16,7 @@ use App\Models\Hall;
 use App\Models\Movie;
 use App\Models\Screening;
 use App\Models\Seat;
-use App\Services\SeatHoldStore;
+use App\Support\Seats\SeatHoldStore;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Illuminate\Support\Facades\Mail;

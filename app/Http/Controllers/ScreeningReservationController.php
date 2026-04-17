@@ -5,8 +5,8 @@ declare(strict_types=1);
 namespace App\Http\Controllers;
 
 use App\Models\Screening;
-use App\Services\CinemaHall\CinemaHallFactory as ScreeningSeatLayoutFactory;
-use App\Services\GuestTokenHandler;
+use App\Support\Identity\GuestTokenManager;
+use App\ViewData\ReservationPageData;
 use Illuminate\Http\Request;
 use Inertia\Inertia;
 use Inertia\Response;
@@ -14,37 +14,14 @@ use Inertia\Response;
 class ScreeningReservationController extends Controller
 {
     public function __construct(
-        private readonly ScreeningSeatLayoutFactory $screeningSeatLayoutFactory,
-        private readonly GuestTokenHandler $guestTokenHandler,
+        private readonly GuestTokenManager $guestTokenHandler,
+        private readonly ReservationPageData $data
     ) {}
 
     public function __invoke(Request $request, Screening $screening): Response
     {
         $this->guestTokenHandler->setup($request);
 
-        $layout = $this->screeningSeatLayoutFactory->forScreening($screening->getKey());
-
-        return Inertia::render('Reservation', [
-            'seats' => $layout->rows(),
-            'screening' => [
-                'id' => $screening->getKey(),
-                'starts_at' => $screening->starts_at->format('H:i'),
-                'ends_at' => $screening->ends_at->format('H:i'),
-                'date' => $screening->starts_at->locale('pl')->translatedFormat('j F Y'),
-                'hall' => [
-                    'label' => $screening->hall->label,
-                    'cinema' => [
-                        'city' => $screening->hall->cinema->city,
-                        'street' => $screening->hall->cinema->street,
-                    ],
-                ],
-                'movie' => [
-                    'title' => $screening->movie->title,
-                    'description' => $screening->movie->description,
-                    'duration' => $screening->movie->duration,
-                    'poster_url' => $screening->movie->poster_url,
-                ],
-            ],
-        ]);
+        return Inertia::render('Reservation', $this->data->build($screening));
     }
 }

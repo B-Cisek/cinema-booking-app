@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Exceptions;
 
 use App\Enums\ResponseCode;
-use App\Services\JsonResponseFactory;
+use App\Support\Http\JsonResponseFactory;
 use Exception;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;

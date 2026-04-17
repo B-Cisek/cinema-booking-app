@@ -4,8 +4,8 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
-use App\Services\ConfigSeatPriceResolver;
-use App\Services\SeatPriceResolver;
+use App\Support\Pricing\ConfigSeatPriceResolver;
+use App\Support\Pricing\SeatPriceResolver;
 use Carbon\CarbonImmutable;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Support\Facades\Date;

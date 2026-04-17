@@ -5,7 +5,7 @@ declare(strict_types=1);
 namespace App\Http\Middleware;
 
 use App\Repositories\CinemaRepository;
-use App\Services\CinemaResolver;
+use App\Support\Identity\CinemaResolver;
 use Illuminate\Http\Request;
 use Inertia\Middleware;
 

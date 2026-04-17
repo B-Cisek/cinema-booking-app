@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use App\Commands\SelectCinema;
 use App\Enums\RowLabel;
 use App\Enums\ScreeningStatus;
 use App\Enums\SeatType;
@@ -44,7 +45,7 @@ class ReservationPageTest extends TestCase
             'is_active' => true,
         ]);
 
-        $startsAt = CarbonImmutable::parse('2026-04-07 18:00:00');
+        $startsAt = CarbonImmutable::now()->startOfDay()->addDay()->addHours(18);
 
         $screening = Screening::query()->create([
             'movie_id' => $movie->getKey(),
@@ -74,7 +75,11 @@ class ReservationPageTest extends TestCase
             'is_active' => false,
         ]);
 
-        $response = $this->get(route('screenings.reservation', $screening));
+        $response = $this
+            ->withSession([
+                SelectCinema::CINEMA_SESSION_KEY => $cinema->getKey(),
+            ])
+            ->get(route('screenings.reservation', $screening));
 
         $response
             ->assertOk()

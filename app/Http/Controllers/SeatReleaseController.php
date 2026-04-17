@@ -4,13 +4,13 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Actions\SeatRelease;
+use App\Commands\SeatRelease;
 use App\Enums\ResponseCode;
 use App\Exceptions\CinemaNotSelectException;
 use App\Http\Requests\SeatReleaseRequest;
-use App\Services\CinemaResolver;
-use App\Services\GuestTokenHandler;
-use App\Services\JsonResponseFactory;
+use App\Support\Http\JsonResponseFactory;
+use App\Support\Identity\CinemaResolver;
+use App\Support\Identity\GuestTokenManager;
 use Illuminate\Http\JsonResponse;
 
 class SeatReleaseController extends Controller
@@ -18,7 +18,7 @@ class SeatReleaseController extends Controller
     public function __construct(
         private readonly SeatRelease $seatRelease,
         private readonly CinemaResolver $cinemaResolver,
-        private readonly GuestTokenHandler $guestTokenHandler,
+        private readonly GuestTokenManager $guestTokenHandler,
     ) {}
 
     public function __invoke(SeatReleaseRequest $request): JsonResponse

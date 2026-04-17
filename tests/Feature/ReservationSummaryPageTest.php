@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace Tests\Feature;
 
+use App\Commands\SelectCinema;
 use App\Enums\RowLabel;
 use App\Enums\ScreeningStatus;
 use App\Enums\SeatType;
@@ -76,10 +77,14 @@ class ReservationSummaryPageTest extends TestCase
             'is_active' => true,
         ]);
 
-        $response = $this->get(route('screenings.reservation-summary', [
-            'screening' => $screening,
-            'seatIds' => [$firstSeat->getKey(), $secondSeat->getKey()],
-        ]));
+        $response = $this
+            ->withSession([
+                SelectCinema::CINEMA_SESSION_KEY => $cinema->getKey(),
+            ])
+            ->get(route('screenings.reservation-summary', [
+                'screening' => $screening,
+                'seatIds' => [$firstSeat->getKey(), $secondSeat->getKey()],
+            ]));
 
         $response
             ->assertOk()
@@ -145,10 +150,14 @@ class ReservationSummaryPageTest extends TestCase
             'is_active' => true,
         ]);
 
-        $response = $this->get(route('screenings.reservation-summary', [
-            'screening' => $screening,
-            'seatIds' => [$foreignSeat->getKey()],
-        ]));
+        $response = $this
+            ->withSession([
+                SelectCinema::CINEMA_SESSION_KEY => $cinema->getKey(),
+            ])
+            ->get(route('screenings.reservation-summary', [
+                'screening' => $screening,
+                'seatIds' => [$foreignSeat->getKey()],
+            ]));
 
         $response->assertRedirect(route('screenings.reservation', $screening));
     }

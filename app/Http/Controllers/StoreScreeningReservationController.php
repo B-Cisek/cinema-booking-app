@@ -4,7 +4,7 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Actions\CreateScreeningReservation;
+use App\Commands\CreateScreeningReservation;
 use App\Http\Requests\StoreScreeningReservationRequest;
 use App\Models\Screening;
 use Illuminate\Http\RedirectResponse;

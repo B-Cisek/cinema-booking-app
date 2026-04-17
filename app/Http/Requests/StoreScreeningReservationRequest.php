@@ -6,6 +6,7 @@ namespace App\Http\Requests;
 
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
+use Illuminate\Validation\Rule;
 
 class StoreScreeningReservationRequest extends FormRequest
 {
@@ -20,7 +21,7 @@ class StoreScreeningReservationRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'email' => ['required', 'email'],
+            'email' => ['required', Rule::email()->rfcCompliant(strict: true)],
             'seatIds' => ['required', 'array', 'min:1'],
             'seatIds.*' => ['required', 'uuid:7', 'distinct'],
         ];

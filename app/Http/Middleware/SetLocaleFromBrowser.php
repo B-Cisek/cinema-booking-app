@@ -8,6 +8,7 @@ use Closure;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\App;
 use Illuminate\Support\Facades\Config;
+use Illuminate\Support\Facades\Lang;
 use Symfony\Component\HttpFoundation\Response;
 
 class SetLocaleFromBrowser
@@ -17,7 +18,18 @@ class SetLocaleFromBrowser
      */
     public function handle(Request $request, Closure $next): Response
     {
-        $lang = $request->getPreferredLanguage(['pl', 'en']) ?? Config::get('app.locale', 'pl');
+        $lang = Config::get('app.locale', 'pl');
+
+        if ($request->hasHeader('Accept-Language')) {
+            $preferredLanguage = $request->getPreferredLanguage(['pl', 'en']);
+
+            if (
+                is_string($preferredLanguage)
+                && Lang::has('global.button.cinema_picker', $preferredLanguage, false)
+            ) {
+                $lang = $preferredLanguage;
+            }
+        }
 
         App::setLocale($lang);
 
