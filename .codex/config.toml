@@ -1,4 +1,8 @@
 [mcp_servers.laravel-boost]
-command = "docker"
-args = ["exec", "-it", "cinema-app", "php", "artisan", "boost:mcp"]
+command = "./mcp-boost.sh"
+args = []
 cwd = "/Users/bartek/Coding/cinema-booking-app"
+
+[mcp_servers.shadcn]
+command = "npx"
+args = ["shadcn@latest", "mcp"]

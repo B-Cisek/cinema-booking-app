@@ -3,6 +3,9 @@
 declare(strict_types=1);
 
 use App\Http\Controllers\HomeController;
+use App\Http\Controllers\LoginController;
+use App\Http\Controllers\LogoutController;
+use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\ScreeningReservationController;
 use App\Http\Controllers\ScreeningReservationSuccessController;
 use App\Http\Controllers\ScreeningReservationSummaryController;
@@ -14,6 +17,17 @@ use App\Http\Middleware\EnsureCinemaSelected;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', HomeController::class)->name('home');
+
+Route::middleware('guest')->group(function (): void {
+    Route::get('/login', [LoginController::class, 'show'])->name('login');
+    Route::post('/login', [LoginController::class, 'store'])->name('login.store');
+    Route::get('/register', [RegisterController::class, 'show'])->name('register');
+    Route::post('/register', [RegisterController::class, 'store'])->name('register.store');
+});
+
+Route::middleware('auth')->group(function (): void {
+    Route::post('/logout', LogoutController::class)->name('logout');
+});
 
 Route::middleware(EnsureCinemaSelected::class)->group(function (): void {
     Route::get('/screenings/{screening}/reservation', ScreeningReservationController::class)
