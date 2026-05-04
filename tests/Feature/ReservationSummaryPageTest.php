@@ -13,6 +13,7 @@ use App\Models\Hall;
 use App\Models\Movie;
 use App\Models\Screening;
 use App\Models\Seat;
+use App\Models\User;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
 use Inertia\Testing\AssertableInertia as Assert;
@@ -102,6 +103,68 @@ class ReservationSummaryPageTest extends TestCase
                 ->where('selectedSeats.1.seatType', 'vip')
                 ->where('selectedSeats.1.price', 3400)
                 ->where('totalPrice', 5600)
+                ->has('paymentMethods', 3)
+                ->where('paymentMethods.0.code', 'payu')
+            );
+    }
+
+    #[Test]
+    public function it_shares_the_authenticated_user_on_the_reservation_summary_page(): void
+    {
+        $cinema = Cinema::factory()->create();
+        $user = User::factory()->create([
+            'email' => 'konto@example.com',
+        ]);
+
+        $hall = Hall::query()->create([
+            'cinema_id' => $cinema->getKey(),
+            'name' => 'main',
+            'label' => 'Sala 2',
+        ]);
+
+        $movie = Movie::query()->create([
+            'title' => 'Interstellar',
+            'description' => 'Space drama',
+            'duration' => 169,
+            'poster_url' => 'https://example.com/interstellar.jpg',
+            'is_active' => true,
+        ]);
+
+        $startsAt = CarbonImmutable::parse('2026-04-07 20:00:00');
+
+        $screening = Screening::query()->create([
+            'movie_id' => $movie->getKey(),
+            'hall_id' => $hall->getKey(),
+            'status' => ScreeningStatus::SCHEDULED,
+            'starts_at' => $startsAt,
+            'ends_at' => $startsAt->addMinutes($movie->duration),
+        ]);
+
+        $seat = Seat::query()->create([
+            'hall_id' => $hall->getKey(),
+            'row_label' => RowLabel::B,
+            'seat_number' => 4,
+            'seat_type' => SeatType::STANDARD,
+            'pos_x' => 4,
+            'pos_y' => 2,
+            'is_active' => true,
+        ]);
+
+        $response = $this
+            ->actingAs($user)
+            ->withSession([
+                SelectCinema::CINEMA_SESSION_KEY => $cinema->getKey(),
+            ])
+            ->get(route('screenings.reservation-summary', [
+                'screening' => $screening,
+                'seatIds' => [$seat->getKey()],
+            ]));
+
+        $response
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('ReservationSummary')
+                ->where('auth.user.email', 'konto@example.com')
             );
     }
 

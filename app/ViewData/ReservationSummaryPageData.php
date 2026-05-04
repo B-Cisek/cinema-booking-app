@@ -4,6 +4,7 @@ declare(strict_types=1);
 
 namespace App\ViewData;
 
+use App\Enums\PaymentMethod;
 use App\Models\Screening;
 use App\Models\Seat;
 use App\Support\Pricing\SeatPriceCalculator;
@@ -73,6 +74,14 @@ readonly class ReservationSummaryPageData
             ],
             'selectedSeats' => $selectedSeatPayload->all(),
             'totalPrice' => $selectedSeatPayload->sum('price'),
+            'paymentMethods' => array_map(
+                fn (PaymentMethod $paymentMethod): array => [
+                    'code' => $paymentMethod->value,
+                    'label' => $paymentMethod->label(),
+                    'description' => $paymentMethod->description(),
+                ],
+                PaymentMethod::cases(),
+            ),
         ];
     }
 }

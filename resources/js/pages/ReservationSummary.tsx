@@ -1,5 +1,13 @@
 import { Head, useForm } from '@inertiajs/react';
-import { CalendarDays, Clock3, Mail, MapPin, Ticket } from 'lucide-react';
+import {
+    CalendarDays,
+    CircleDollarSign,
+    Clock3,
+    CreditCard,
+    Mail,
+    MapPin,
+    Ticket,
+} from 'lucide-react';
 import type { FormEvent } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -35,6 +43,11 @@ interface ReservationSummaryPageProps extends SharedPageProps{
         price: number;
     }>;
     totalPrice: number;
+    paymentMethods: Array<{
+        code: string;
+        label: string;
+        description: string;
+    }>;
 }
 
 const seatTypeLabels: Record<string, string> = {
@@ -45,12 +58,16 @@ const seatTypeLabels: Record<string, string> = {
 };
 
 export default function ReservationSummaryPage({
+    auth,
     screening,
     selectedSeats,
     totalPrice,
+    paymentMethods,
 }: ReservationSummaryPageProps) {
+    const loggedInUserEmail = auth.user?.email ?? null;
     const form = useForm({
-        email: '',
+        email: loggedInUserEmail ?? '',
+        paymentMethod: paymentMethods[0]?.code ?? '',
         seatIds: selectedSeats.map((seat) => seat.id),
     });
 
@@ -80,9 +97,10 @@ export default function ReservationSummaryPage({
                                         Podsumowanie rezerwacji
                                     </h1>
                                     <p className="text-sm leading-6 text-muted-foreground">
-                                        Sprawdź wybrane miejsca i podaj adres
-                                        e-mail, na który wyślemy potwierdzenie
-                                        kolejnego kroku rezerwacji.
+                                        Sprawdź wybrane miejsca i wybierz metodę
+                                        płatności. {loggedInUserEmail
+                                            ? 'Po zaksięgowaniu testowej płatności wyślemy bilet na adres przypisany do Twojego konta.'
+                                            : 'Podaj adres e-mail, na który wyślemy potwierdzenie kolejnego kroku rezerwacji.'}
                                     </p>
                                 </div>
 
@@ -136,7 +154,125 @@ export default function ReservationSummaryPage({
                     </CardContent>
                 </Card>
 
-                <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
+                <form
+                    className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]"
+                    onSubmit={handleSubmit}
+                >
+                    <div className="space-y-6">
+                        {!loggedInUserEmail && (
+                            <Card className="rounded-[2rem] border-border/70 shadow-lg shadow-primary/5">
+                                <CardHeader className="gap-3">
+                                    <div className="flex items-center gap-3">
+                                        <div className="flex size-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                                            <Mail className="size-5" />
+                                        </div>
+                                        <div>
+                                            <p className="text-xs font-semibold tracking-[0.22em] text-muted-foreground uppercase">
+                                                Twoje dane
+                                            </p>
+                                            <CardTitle className="text-2xl tracking-tight">
+                                                Kontakt do wysyłki biletu
+                                            </CardTitle>
+                                        </div>
+                                    </div>
+                                </CardHeader>
+                                <CardContent className="space-y-4 px-5 pb-6 sm:px-6">
+                                    <div className="space-y-2">
+                                        <label
+                                            htmlFor="email"
+                                            className="text-sm font-semibold"
+                                        >
+                                            Adres e-mail
+                                        </label>
+                                        <input
+                                            id="email"
+                                            type="email"
+                                            autoComplete="email"
+                                            value={form.data.email}
+                                            onChange={(event) =>
+                                                form.setData(
+                                                    'email',
+                                                    event.target.value,
+                                                )
+                                            }
+                                            placeholder="np. jan.kowalski@example.com"
+                                            className="flex h-12 w-full rounded-2xl border border-input bg-background px-4 text-sm shadow-sm transition outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/20"
+                                        />
+                                        {form.errors.email && (
+                                            <p className="text-sm text-destructive">
+                                                {form.errors.email}
+                                            </p>
+                                        )}
+                                    </div>
+
+                                    <div className="rounded-2xl border border-border bg-muted/20 px-4 py-4">
+                                        <p className="text-sm leading-6 text-muted-foreground">
+                                            Na ten adres wyślemy bilet po
+                                            zaksięgowaniu testowej płatności.
+                                        </p>
+                                    </div>
+                                </CardContent>
+                            </Card>
+                        )}
+
+                        <Card className="rounded-[2rem] border-border/70 shadow-lg shadow-primary/5">
+                            <CardHeader className="gap-3">
+                                <div className="flex items-center gap-3">
+                                    <div className="flex size-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                                        <CreditCard className="size-5" />
+                                    </div>
+                                    <div>
+                                        <p className="text-xs font-semibold tracking-[0.22em] text-muted-foreground uppercase">
+                                            Metoda płatności
+                                        </p>
+                                        <CardTitle className="text-2xl tracking-tight">
+                                            Wybierz bramkę
+                                        </CardTitle>
+                                    </div>
+                                </div>
+                            </CardHeader>
+                            <CardContent className="space-y-3 px-5 pb-6 sm:px-6">
+                                {paymentMethods.map((paymentMethod) => (
+                                    <label
+                                        key={paymentMethod.code}
+                                        className="flex cursor-pointer items-start gap-3 rounded-2xl border border-border bg-muted/20 px-4 py-4 transition hover:border-primary/40"
+                                    >
+                                        <input
+                                            type="radio"
+                                            name="paymentMethod"
+                                            value={paymentMethod.code}
+                                            checked={
+                                                form.data.paymentMethod ===
+                                                paymentMethod.code
+                                            }
+                                            onChange={(event) =>
+                                                form.setData(
+                                                    'paymentMethod',
+                                                    event.target.value,
+                                                )
+                                            }
+                                            className="mt-1 size-4 border-border text-primary focus:ring-primary"
+                                        />
+                                        <div className="space-y-1">
+                                            <p className="font-semibold">
+                                                {paymentMethod.label}
+                                            </p>
+                                            <p className="text-sm text-muted-foreground">
+                                                {paymentMethod.description}
+                                            </p>
+                                        </div>
+                                    </label>
+                                ))}
+
+                                {form.errors.paymentMethod && (
+                                    <p className="text-sm text-destructive">
+                                        {form.errors.paymentMethod}
+                                    </p>
+                                )}
+                            </CardContent>
+                        </Card>
+                    </div>
+
                     <Card className="rounded-[2rem] border-border/70 shadow-lg shadow-primary/5">
                         <CardHeader className="gap-3">
                             <div className="flex items-center gap-3">
@@ -144,117 +280,92 @@ export default function ReservationSummaryPage({
                                     <Ticket className="size-5" />
                                 </div>
                                 <div>
+                                    <p className="text-xs font-semibold tracking-[0.22em] text-muted-foreground uppercase">
+                                        Twój koszyk
+                                    </p>
                                     <CardTitle className="text-2xl tracking-tight">
-                                        Wybrane miejsca
+                                        Bilety i płatność
                                     </CardTitle>
                                 </div>
                             </div>
                         </CardHeader>
-                        <CardContent className="space-y-3 px-5 pb-6 sm:px-6">
-                            {selectedSeats.map((seat) => (
-                                <div
-                                    key={seat.id}
-                                    className="flex items-center justify-between rounded-2xl border border-border bg-muted/20 px-4 py-3"
-                                >
-                                    <div className="min-w-0">
-                                        <p className="font-semibold">
-                                            Miejsce {seat.label}
-                                        </p>
-                                        <p className="text-sm text-muted-foreground">
-                                            {seatTypeLabels[seat.seatType] ??
-                                                seat.seatType}
-                                        </p>
-                                    </div>
-                                    <div className="flex items-center gap-3">
-                                        <div className="rounded-full bg-primary/10 px-3 py-1 text-sm font-semibold text-primary">
-                                            Rząd {seat.row}
-                                        </div>
-                                        <p className="text-sm font-semibold text-muted-foreground">
-                                            {formatPrice(seat.price)}
-                                        </p>
-                                    </div>
-                                </div>
-                            ))}
-                        </CardContent>
-                    </Card>
-
-                    <Card className="rounded-[2rem] border-border/70 shadow-lg shadow-primary/5">
-                        <CardHeader className="gap-3">
-                            <div className="flex items-center gap-3">
-                                <div className="flex size-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-                                    <Mail className="size-5" />
-                                </div>
-                                <div>
-                                    <CardTitle className="text-2xl tracking-tight">
-                                        Dane kontaktowe
-                                    </CardTitle>
-                                </div>
-                            </div>
-                        </CardHeader>
-                        <CardContent className="px-5 pb-6 sm:px-6">
-                            <form className="space-y-4" onSubmit={handleSubmit}>
-                                <div className="space-y-2">
-                                    <label
-                                        htmlFor="email"
-                                        className="text-sm font-semibold"
+                        <CardContent className="space-y-4 px-5 pb-6 sm:px-6">
+                            <div className="space-y-3">
+                                {selectedSeats.map((seat) => (
+                                    <div
+                                        key={seat.id}
+                                        className="rounded-2xl border border-border bg-muted/20 px-4 py-4"
                                     >
-                                        Adres e-mail
-                                    </label>
-                                    <input
-                                        id="email"
-                                        type="email"
-                                        autoComplete="email"
-                                        value={form.data.email}
-                                        onChange={(event) =>
-                                            form.setData(
-                                                'email',
-                                                event.target.value,
-                                            )
-                                        }
-                                        placeholder="np. jan.kowalski@example.com"
-                                        className="flex h-12 w-full rounded-2xl border border-input bg-background px-4 text-sm shadow-sm transition outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/20"
-                                    />
-                                    {form.errors.email && (
-                                        <p className="text-sm text-destructive">
-                                            {form.errors.email}
-                                        </p>
-                                    )}
-                                </div>
+                                        <div className="flex items-start justify-between gap-4">
+                                            <div className="min-w-0 space-y-1">
+                                                <p className="font-semibold">
+                                                    Bilet: miejsce {seat.label}
+                                                </p>
+                                                <p className="text-sm text-muted-foreground">
+                                                    {seatTypeLabels[
+                                                        seat.seatType
+                                                    ] ?? seat.seatType}
+                                                </p>
+                                            </div>
+                                            <p className="shrink-0 font-semibold">
+                                                {formatPrice(seat.price)}
+                                            </p>
+                                        </div>
 
-                                <p className="text-sm leading-6 text-muted-foreground">
-                                    Na ten adres zostanie wysłany bilet z
-                                    potwierdzeniem rezerwacji.
+                                        <div className="mt-3 flex items-center gap-2 text-sm text-primary">
+                                            <span className="rounded-full bg-primary/10 px-3 py-1 font-semibold">
+                                                Rząd {seat.row}
+                                            </span>
+                                        </div>
+                                    </div>
+                                ))}
+                            </div>
+
+                            <div className="rounded-[1.75rem] border border-primary/15 bg-primary/5 px-5 py-5">
+                                <div className="flex items-center justify-between gap-4">
+                                    <div className="flex items-center gap-3">
+                                        <div className="flex size-10 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                                            <CircleDollarSign className="size-5" />
+                                        </div>
+                                        <div>
+                                            <p className="text-sm text-muted-foreground">
+                                                Suma do zapłaty
+                                            </p>
+                                            <p className="text-2xl font-semibold tracking-tight">
+                                                {formatPrice(totalPrice)}
+                                            </p>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="rounded-2xl border border-amber-500/25 bg-amber-500/10 px-4 py-4">
+                                <p className="text-sm leading-6 text-amber-900">
+                                    Klikając przycisk poniżej, kupujesz z
+                                    obowiązkiem zapłaty i przechodzisz do
+                                    testowej strony wybranej bramki.
                                 </p>
+                            </div>
 
-                                <div className="rounded-2xl border border-border bg-muted/20 px-4 py-4">
-                                    <p className="text-sm text-muted-foreground">
-                                        Suma
-                                    </p>
-                                    <p className="mt-1 text-2xl font-semibold tracking-tight">
-                                        {formatPrice(totalPrice)}
-                                    </p>
-                                </div>
+                            {form.errors.seatIds && (
+                                <p className="text-sm text-destructive">
+                                    {form.errors.seatIds}
+                                </p>
+                            )}
 
-                                {form.errors.seatIds && (
-                                    <p className="text-sm text-destructive">
-                                        {form.errors.seatIds}
-                                    </p>
-                                )}
-
-                                <Button
-                                    type="submit"
-                                    size="lg"
-                                    className="h-12 w-full rounded-full text-base"
-                                    disabled={form.processing}
-                                >
-                                    {form.processing
-                                        ? 'Rezerwowanie...'
-                                        : 'Rezerwuj'}
-                                </Button>
-                            </form>
+                            <Button
+                                type="submit"
+                                size="lg"
+                                className="h-12 w-full rounded-full text-base"
+                                disabled={form.processing}
+                            >
+                                {form.processing
+                                    ? 'Przekierowanie...'
+                                    : 'Kupuję i płacę'}
+                            </Button>
                         </CardContent>
                     </Card>
-                </div>
+                </form>
             </section>
         </>
     );

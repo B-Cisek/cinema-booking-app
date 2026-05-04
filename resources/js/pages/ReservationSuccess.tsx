@@ -3,7 +3,7 @@ import { CalendarDays, CheckCircle2, Mail, MapPin, Ticket } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { home } from '@/routes';
-import { SharedPageProps } from '@/types';
+import type { SharedPageProps } from '@/types';
 
 interface ReservationSuccessPageProps extends SharedPageProps{
     booking: {

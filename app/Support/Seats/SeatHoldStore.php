@@ -40,7 +40,7 @@ class SeatHoldStore
         string $cinemaId,
         string $screeningId,
         string $seatId,
-        string $ownerIdentifier,
+        string $userIdentifier,
     ): bool {
         try {
             $payload = Redis::client()->get(
@@ -73,7 +73,7 @@ class SeatHoldStore
             return false;
         }
 
-        return ($decodedPayload['owner_identifier'] ?? null) === $ownerIdentifier;
+        return ($decodedPayload['user_identifier'] ?? null) === $userIdentifier;
     }
 
     private function createScreeningPattern(string $cinemaId, string $screeningId): string

@@ -2,11 +2,13 @@
 
 declare(strict_types=1);
 
+use App\Http\Controllers\CompleteScreeningReservationPaymentController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\LogoutController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\ScreeningReservationController;
+use App\Http\Controllers\ScreeningReservationPaymentController;
 use App\Http\Controllers\ScreeningReservationSuccessController;
 use App\Http\Controllers\ScreeningReservationSummaryController;
 use App\Http\Controllers\SeatHoldController;
@@ -38,6 +40,12 @@ Route::middleware(EnsureCinemaSelected::class)->group(function (): void {
 
     Route::get('/screenings/{screening}/reservation/summary', ScreeningReservationSummaryController::class)
         ->name('screenings.reservation-summary');
+
+    Route::get('/screenings/{screening}/reservation/payment/{booking}/{paymentMethod}', ScreeningReservationPaymentController::class)
+        ->name('screenings.reservation-payment');
+
+    Route::post('/screenings/{screening}/reservation/payment/{booking}/{paymentMethod}', CompleteScreeningReservationPaymentController::class)
+        ->name('screenings.complete-payment');
 
     Route::post('/screenings/seat-hold', SeatHoldController::class)
         ->name('screenings.seat-hold');

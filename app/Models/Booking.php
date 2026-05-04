@@ -5,6 +5,7 @@ declare(strict_types=1);
 namespace App\Models;
 
 use App\Enums\BookingStatus;
+use App\Enums\PaymentMethod;
 use Illuminate\Database\Eloquent\Attributes\Fillable;
 use Illuminate\Database\Eloquent\Attributes\Table;
 use Illuminate\Database\Eloquent\Collection;
@@ -16,10 +17,12 @@ use Illuminate\Support\Carbon;
 
 /**
  * @property string $id
- * @property string $user_id
+ * @property string|null $user_id
+ * @property string|null $guest_id
  * @property string $screening_id
  * @property string $booking_number
  * @property BookingStatus $status
+ * @property PaymentMethod $payment_method
  * @property string $customer_email
  * @property Carbon $created_at
  * @property Carbon $updated_at
@@ -28,7 +31,7 @@ use Illuminate\Support\Carbon;
  * @property Collection<BookedSeat> $bookedSeats
  */
 #[Table(timestamps: true)]
-#[Fillable(['user_id', 'screening_id', 'booking_number', 'status', 'customer_email'])]
+#[Fillable(['user_id', 'guest_id', 'screening_id', 'booking_number', 'status', 'customer_email', 'payment_method'])]
 class Booking extends Model
 {
     use HasUuids;
@@ -55,6 +58,7 @@ class Booking extends Model
     {
         return [
             'status' => BookingStatus::class,
+            'payment_method' => PaymentMethod::class,
         ];
     }
 }

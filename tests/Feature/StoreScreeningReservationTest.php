@@ -16,6 +16,8 @@ use App\Models\Hall;
 use App\Models\Movie;
 use App\Models\Screening;
 use App\Models\Seat;
+use App\Models\User;
+use App\Support\Booking\BookingNumberGenerator;
 use App\Support\Seats\SeatHoldStore;
 use Carbon\CarbonImmutable;
 use Illuminate\Foundation\Testing\RefreshDatabase;
@@ -30,7 +32,7 @@ class StoreScreeningReservationTest extends TestCase
     use RefreshDatabase;
 
     #[Test]
-    public function it_creates_a_booking_for_the_selected_seats(): void
+    public function it_creates_a_pending_booking_and_redirects_to_the_payment_page(): void
     {
         config()->set('seat.prices.standard', 2100);
         config()->set('seat.prices.vip', 3300);
@@ -62,20 +64,24 @@ class StoreScreeningReservationTest extends TestCase
             ->withCookie('guest-token', $guestToken)
             ->post(route('screenings.book', $screening), [
                 'email' => 'jan@example.com',
+                'paymentMethod' => 'payu',
                 'seatIds' => [$firstSeat->getKey(), $secondSeat->getKey()],
             ]);
 
         $booking = Booking::query()->firstOrFail();
 
-        $response->assertRedirect(route('screenings.reservation-success', [
+        $response->assertRedirect(route('screenings.reservation-payment', [
             'screening' => $screening,
             'booking' => $booking,
+            'paymentMethod' => 'payu',
         ]));
 
         $this->assertDatabaseHas('bookings', [
             'screening_id' => $screening->getKey(),
             'customer_email' => 'jan@example.com',
-            'status' => BookingStatus::CONFIRMED->value,
+            'status' => BookingStatus::PENDING->value,
+            'user_id' => null,
+            'guest_id' => $guestToken,
         ]);
         $this->assertDatabaseCount('booked_seats', 2);
         $this->assertDatabaseHas('booked_seats', [
@@ -89,10 +95,123 @@ class StoreScreeningReservationTest extends TestCase
             'price' => 3300,
         ]);
 
-        Mail::assertQueued(SendTicket::class, function (SendTicket $mail) use ($booking): bool {
-            return $mail->hasTo('jan@example.com')
-                && $mail->booking->is($booking);
-        });
+        Mail::assertNothingQueued();
+    }
+
+    #[Test]
+    public function it_uses_the_authenticated_user_email_when_email_is_not_provided(): void
+    {
+        config()->set('seat.prices.standard', 2100);
+        Mail::fake();
+        $guestToken = Uuid::uuid7()->toString();
+        $user = User::factory()->create([
+            'email' => 'konto@example.com',
+        ]);
+        [$cinema, $screening, $firstSeat] = $this->prepareScreening();
+
+        $seatHoldStore = $this->createMock(SeatHoldStore::class);
+        $seatHoldStore
+            ->expects($this->once())
+            ->method('isHeldByOwner')
+            ->willReturn(true);
+        $this->instance(SeatHoldStore::class, $seatHoldStore);
+
+        Redis::shouldReceive('client->get')
+            ->once()
+            ->andReturn(json_encode(['owner_identifier' => $guestToken], JSON_THROW_ON_ERROR));
+        Redis::shouldReceive('client->del')
+            ->once()
+            ->andReturn(1);
+
+        $response = $this
+            ->actingAs($user)
+            ->withSession([
+                SelectCinema::CINEMA_SESSION_KEY => $cinema->getKey(),
+            ])
+            ->withCookie('guest-token', $guestToken)
+            ->post(route('screenings.book', $screening), [
+                'paymentMethod' => 'payu',
+                'seatIds' => [$firstSeat->getKey()],
+            ]);
+
+        $booking = Booking::query()->firstOrFail();
+
+        $response->assertRedirect(route('screenings.reservation-payment', [
+            'screening' => $screening,
+            'booking' => $booking,
+            'paymentMethod' => 'payu',
+        ]));
+
+        $this->assertDatabaseHas('bookings', [
+            'id' => $booking->getKey(),
+            'user_id' => $user->getKey(),
+            'guest_id' => null,
+            'customer_email' => 'konto@example.com',
+            'status' => BookingStatus::PENDING->value,
+        ]);
+
+        Mail::assertNothingQueued();
+    }
+
+    #[Test]
+    public function it_retries_booking_creation_when_the_generated_booking_number_is_not_unique(): void
+    {
+        config()->set('seat.prices.standard', 2100);
+        Mail::fake();
+        $guestToken = Uuid::uuid7()->toString();
+        [$cinema, $screening, $firstSeat] = $this->prepareScreening();
+
+        Booking::query()->create([
+            'screening_id' => $screening->getKey(),
+            'customer_email' => 'existing@example.com',
+            'booking_number' => 'BKDUPL1',
+            'status' => BookingStatus::PENDING,
+        ]);
+
+        $bookingNumberGenerator = $this->createMock(BookingNumberGenerator::class);
+        $bookingNumberGenerator
+            ->expects($this->exactly(2))
+            ->method('generate')
+            ->willReturnOnConsecutiveCalls('BKDUPL1', 'BKUNIQ2');
+        $this->instance(BookingNumberGenerator::class, $bookingNumberGenerator);
+
+        $seatHoldStore = $this->createMock(SeatHoldStore::class);
+        $seatHoldStore
+            ->expects($this->once())
+            ->method('isHeldByOwner')
+            ->willReturn(true);
+        $this->instance(SeatHoldStore::class, $seatHoldStore);
+
+        Redis::shouldReceive('client->get')
+            ->once()
+            ->andReturn(json_encode(['owner_identifier' => $guestToken], JSON_THROW_ON_ERROR));
+        Redis::shouldReceive('client->del')
+            ->once()
+            ->andReturn(1);
+
+        $response = $this
+            ->withSession([
+                SelectCinema::CINEMA_SESSION_KEY => $cinema->getKey(),
+            ])
+            ->withCookie('guest-token', $guestToken)
+            ->post(route('screenings.book', $screening), [
+                'email' => 'jan@example.com',
+                'paymentMethod' => 'payu',
+                'seatIds' => [$firstSeat->getKey()],
+            ]);
+
+        $booking = Booking::query()
+            ->where('customer_email', 'jan@example.com')
+            ->firstOrFail();
+
+        $response->assertRedirect(route('screenings.reservation-payment', [
+            'screening' => $screening,
+            'booking' => $booking,
+            'paymentMethod' => 'payu',
+        ]));
+
+        $this->assertSame('BKUNIQ2', $booking->booking_number);
+        $this->assertDatabaseCount('bookings', 2);
     }
 
     #[Test]
@@ -119,6 +238,7 @@ class StoreScreeningReservationTest extends TestCase
             ->withCookie('guest-token', $guestToken)
             ->post(route('screenings.book', $screening), [
                 'email' => 'jan@example.com',
+                'paymentMethod' => 'payu',
                 'seatIds' => [$firstSeat->getKey()],
             ]);
 
@@ -132,6 +252,63 @@ class StoreScreeningReservationTest extends TestCase
             ]);
 
         $this->assertDatabaseCount('bookings', 0);
+    }
+
+    #[Test]
+    public function it_confirms_the_booking_after_the_test_payment(): void
+    {
+        config()->set('seat.prices.standard', 2100);
+        Mail::fake();
+        $guestToken = Uuid::uuid7()->toString();
+        [$cinema, $screening, $firstSeat] = $this->prepareScreening();
+
+        $seatHoldStore = $this->createMock(SeatHoldStore::class);
+        $seatHoldStore
+            ->expects($this->once())
+            ->method('isHeldByOwner')
+            ->willReturn(true);
+        $this->instance(SeatHoldStore::class, $seatHoldStore);
+
+        Redis::shouldReceive('client->get')
+            ->once()
+            ->andReturn(json_encode(['owner_identifier' => $guestToken], JSON_THROW_ON_ERROR));
+        Redis::shouldReceive('client->del')
+            ->once()
+            ->andReturn(1);
+
+        $this
+            ->withSession([
+                SelectCinema::CINEMA_SESSION_KEY => $cinema->getKey(),
+            ])
+            ->withCookie('guest-token', $guestToken)
+            ->post(route('screenings.book', $screening), [
+                'email' => 'jan@example.com',
+                'paymentMethod' => 'cart',
+                'seatIds' => [$firstSeat->getKey()],
+            ]);
+
+        $booking = Booking::query()->firstOrFail();
+
+        $response = $this->post(route('screenings.complete-payment', [
+            'screening' => $screening,
+            'booking' => $booking,
+            'paymentMethod' => 'cart',
+        ]));
+
+        $response->assertRedirect(route('screenings.reservation-success', [
+            'screening' => $screening,
+            'booking' => $booking,
+        ]));
+
+        $this->assertDatabaseHas('bookings', [
+            'id' => $booking->getKey(),
+            'status' => BookingStatus::CONFIRMED->value,
+        ]);
+
+        Mail::assertQueued(SendTicket::class, function (SendTicket $mail) use ($booking): bool {
+            return $mail->hasTo('jan@example.com')
+                && $mail->booking->is($booking);
+        });
     }
 
     /**

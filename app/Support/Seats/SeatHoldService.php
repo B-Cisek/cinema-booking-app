@@ -19,7 +19,7 @@ final readonly class SeatHoldService
         $key = $this->createKey($cinemaId, $screeningId, $seatId);
         $expiresAt = CarbonImmutable::now()->addSeconds(self::HOLD_SECONDS)->toIso8601String();
         $payload = [
-            'owner_identifier' => $ownerIdentifier,
+            'user_identifier' => $ownerIdentifier,
             'expires_at' => $expiresAt,
         ];
 
@@ -37,7 +37,7 @@ final readonly class SeatHoldService
         return $expiresAt;
     }
 
-    public function release(string $cinemaId, string $screeningId, string $seatId, string $ownerIdentifier): void
+    public function release(string $cinemaId, string $screeningId, string $seatId, string $userIdentifier): void
     {
         $key = $this->createKey($cinemaId, $screeningId, $seatId);
 
@@ -46,7 +46,7 @@ final readonly class SeatHoldService
         if ($current) {
             $payload = json_decode(json: $current, associative: true, flags: JSON_THROW_ON_ERROR);
 
-            if ($payload['owner_identifier'] === $ownerIdentifier) {
+            if ($payload['user_identifier'] === $userIdentifier) {
                 Redis::client()->del($key);
                 Log::debug('SEAT_RELEASE', ['key' => $key]);
             }

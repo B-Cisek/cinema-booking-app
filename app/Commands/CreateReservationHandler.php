@@ -4,55 +4,44 @@ declare(strict_types=1);
 
 namespace App\Commands;
 
-use App\Enums\BookingStatus;
-use App\Mail\SendTicket;
+use App\Enums\PaymentMethod;
 use App\Models\Booking;
 use App\Models\Screening;
 use App\Models\Seat;
 use App\Repositories\BookingRepository;
-use App\Support\Identity\CinemaResolver;
-use App\Support\Identity\GuestTokenManager;
+use App\Repositories\UserRepository;
+use App\Support\Booking\BookingNumberGenerator;
 use App\Support\Pricing\SeatPriceCalculator;
 use App\Support\Seats\SeatHoldService;
 use App\Support\Seats\SeatHoldStore;
-use Illuminate\Http\Request;
 use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\DB;
-use Illuminate\Support\Facades\Mail;
-use Illuminate\Support\Str;
 use Illuminate\Validation\ValidationException;
+use RuntimeException;
 
-readonly class CreateScreeningReservation
+readonly class CreateReservationHandler
 {
     public function __construct(
         private BookingRepository $bookingRepository,
-        private CinemaResolver $cinemaResolver,
-        private GuestTokenManager $guestTokenHandler,
+        private BookingNumberGenerator $bookingNumberGenerator,
         private SeatHoldService $seatHoldService,
         private SeatHoldStore $seatHoldStore,
         private SeatPriceCalculator $seatPriceCalculator,
+        private UserRepository $userRepository,
     ) {}
 
     /**
      * @param  array<int, string>  $seatIds
      */
     public function handle(
-        Request $request,
         Screening $screening,
-        string $customerEmail,
         array $seatIds,
+        string $userIdentifier,
+        PaymentMethod $paymentMethod,
+        ?string $customerEmail
     ): Booking {
-        $cinema = $this->cinemaResolver->resolve($request);
-
-        if ($cinema === null) {
-            throw ValidationException::withMessages([
-                'seatIds' => 'Najpierw wybierz kino.',
-            ]);
-        }
-
         $screening->loadMissing('hall');
 
-        $ownerIdentifier = $this->guestTokenHandler->resolve($request);
         $selectedSeats = $screening->hall->seats()
             ->whereIn('id', $seatIds)
             ->where('is_active', true)
@@ -63,25 +52,49 @@ readonly class CreateScreeningReservation
         $this->ensureSeatsCanBeBooked(
             selectedSeats: $selectedSeats,
             screening: $screening,
-            cinemaId: $cinema->getKey(),
-            ownerIdentifier: $ownerIdentifier,
+            cinemaId: $screening->hall->cinema_id,
+            userIdentifier: $userIdentifier,
             seatIds: $seatIds,
         );
 
-        /** @var Booking $booking */
-        $booking = DB::transaction(function () use (
-            $customerEmail,
-            $ownerIdentifier,
-            $screening,
-            $selectedSeats,
-            $request,
-        ): Booking {
-            $booking = $screening->bookings()->create([
-                'user_id' => $request->user()?->getAuthIdentifier(),
-                'booking_number' => $this->generateBookingNumber(),
-                'status' => BookingStatus::CONFIRMED,
-                'customer_email' => $customerEmail,
+        return $this->createBooking(
+            ownerIdentifier: $userIdentifier,
+            customerEmail: $customerEmail,
+            selectedSeats: $selectedSeats,
+            cinemaId: $screening->hall->cinema_id,
+            screeningId: $screening->getKey(),
+            paymentMethod: $paymentMethod
+        );
+    }
+
+    private function createBooking(
+        string $ownerIdentifier,
+        ?string $customerEmail,
+        Collection $selectedSeats,
+        string $cinemaId,
+        string $screeningId,
+        PaymentMethod $paymentMethod,
+    ): Booking {
+        $owner = $this->userRepository->get($ownerIdentifier);
+        $resolvedCustomerEmail = $customerEmail ?? $owner?->email;
+
+        if ($resolvedCustomerEmail === null) {
+            throw ValidationException::withMessages([
+                'email' => 'Adres e-mail jest wymagany do utworzenia rezerwacji.',
             ]);
+        }
+
+        DB::beginTransaction();
+
+        try {
+            $booking = $this->bookingRepository->create(
+                bookingNumber: $this->generateUniqueBookingNumber(),
+                screeningId: $screeningId,
+                customerEmail: $resolvedCustomerEmail,
+                paymentMethod: $paymentMethod,
+                userId: $owner?->getKey(),
+                guestId: $owner === null ? $ownerIdentifier : null,
+            );
 
             $booking->bookedSeats()->createMany(
                 $selectedSeats->map(
@@ -94,25 +107,37 @@ readonly class CreateScreeningReservation
 
             foreach ($selectedSeats as $seat) {
                 $this->seatHoldService->release(
-                    cinemaId: $screening->hall->cinema_id,
-                    screeningId: $screening->getKey(),
+                    cinemaId: $cinemaId,
+                    screeningId: $screeningId,
                     seatId: $seat->getKey(),
-                    ownerIdentifier: $ownerIdentifier,
+                    userIdentifier: $ownerIdentifier,
                 );
             }
 
+            DB::commit();
+
             return $booking;
-        });
+        } catch (\Throwable $exception) {
+            DB::rollBack();
 
-        $booking->loadMissing([
-            'screening.movie',
-            'screening.hall.cinema',
-            'bookedSeats.seat',
-        ]);
+            throw $exception;
+        }
+    }
 
-        Mail::to($booking->customer_email)->queue(new SendTicket($booking));
+    private function generateUniqueBookingNumber(): string
+    {
+        $attempts = 0;
 
-        return $booking;
+        do {
+            $bookingNumber = $this->bookingNumberGenerator->generate();
+            $attempts++;
+
+            if (! $this->bookingRepository->bookingNumberExists($bookingNumber)) {
+                return $bookingNumber;
+            }
+        } while ($attempts < 5);
+
+        throw new RuntimeException('Could not generate unique booking number.');
     }
 
     /**
@@ -123,7 +148,7 @@ readonly class CreateScreeningReservation
         Collection $selectedSeats,
         Screening $screening,
         string $cinemaId,
-        string $ownerIdentifier,
+        string $userIdentifier,
         array $seatIds,
     ): void {
         if ($selectedSeats->count() !== count($seatIds)) {
@@ -143,17 +168,12 @@ readonly class CreateScreeningReservation
                 cinemaId: $cinemaId,
                 screeningId: $screening->getKey(),
                 seatId: $seat->getKey(),
-                ownerIdentifier: $ownerIdentifier,
+                userIdentifier: $userIdentifier,
             )) {
                 throw ValidationException::withMessages([
                     'seatIds' => 'Czas rezerwacji miejsc minął. Wybierz miejsca ponownie.',
                 ]);
             }
         }
-    }
-
-    private function generateBookingNumber(): string
-    {
-        return Str::upper(Str::random(10));
     }
 }
