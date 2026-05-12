@@ -6,6 +6,7 @@ namespace Tests\Feature;
 
 use App\Commands\SelectCinema;
 use App\Enums\BookingStatus;
+use App\Enums\PaymentMethod;
 use App\Enums\RowLabel;
 use App\Enums\ScreeningStatus;
 use App\Enums\SeatType;
@@ -93,6 +94,7 @@ class ReservationPaymentPageTest extends TestCase
             'booking_number' => 'ABC1234567',
             'status' => BookingStatus::PENDING,
             'customer_email' => 'jan@example.com',
+            'payment_method' => PaymentMethod::PAY_U,
         ]);
 
         $firstSeat = Seat::query()->create([

@@ -37,6 +37,7 @@ readonly class GetHomeScreeningsQuery
                     'label' => $screening->hall->label,
                 ],
                 'movie' => [
+                    'id' => $screening->movie->id,
                     'title' => $screening->movie->title,
                     'description' => $screening->movie->description,
                     'duration' => $screening->movie->duration,

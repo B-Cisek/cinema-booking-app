@@ -24,7 +24,9 @@ const flashHandlers = {
 } as const;
 
 export default function AppLayout({ children }: PropsWithChildren) {
-    const { auth } = usePage<PageProps>().props;
+    const page = usePage<PageProps>();
+    const { auth } = page.props;
+    const isStandalonePage = page.component === 'ReservationPayment';
 
     useEffect(() => {
         const removeListener = router.on('flash', (event) => {
@@ -46,6 +48,15 @@ export default function AppLayout({ children }: PropsWithChildren) {
             removeListener();
         };
     }, []);
+
+    if (isStandalonePage) {
+        return (
+            <>
+                {children}
+                <Toaster closeButton richColors position="top-center" />
+            </>
+        );
+    }
 
     return (
         <div className="min-h-screen bg-background text-foreground">

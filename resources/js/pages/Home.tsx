@@ -1,23 +1,14 @@
-import { Head, Link, router } from '@inertiajs/react';
+import { Head, Link } from '@inertiajs/react';
 import { Clock3, Ticket } from 'lucide-react';
 import { useState } from 'react';
 import ScreeningReservationController from '@/actions/App/Http/Controllers/ScreeningReservationController';
-import CinemaPickerModal from '@/components/CinemaPickerModal';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
-import cinemasRoutes from '@/routes/cinemas';
-import type { Cinema, ScheduleDay, Screening, SharedPageProps } from '@/types';
+import type { ScheduleDay, Screening, SharedPageProps } from '@/types';
 
-export interface HomeLang {
-    screening: string;
-    select_cinema_message: string;
-    select_cinema: string;
-    no_screenings: string;
-}
-
-interface HomeProps extends SharedPageProps<HomeLang> {
+interface HomeProps extends SharedPageProps {
     scheduleDays: ScheduleDay[];
     screenings: Screening[];
 }
@@ -26,266 +17,191 @@ export default function Home({
     scheduleDays,
     screenings,
     selectedCinema,
-    cinemas,
-    lang,
 }: HomeProps) {
     const [activeDate, setActiveDate] = useState(scheduleDays[0]?.date ?? '');
-    const [isCinemaModalOpen, setIsCinemaModalOpen] = useState(false);
-    const [search, setSearch] = useState('');
-    const isCinemaSelectionRequired = selectedCinema === null;
-    const isCinemaModalVisible = isCinemaSelectionRequired || isCinemaModalOpen;
 
-    const handleSelectCinema = (cinema: Cinema): void => {
-        router.post(
-            cinemasRoutes.select(),
-            { id: cinema.id },
-            {
-                preserveScroll: true,
-                onSuccess: () => {
-                    setIsCinemaModalOpen(false);
-                    setSearch('');
-                },
-            },
-        );
-    };
-
-    const handleCinemaModalOpenChange = (open: boolean): void => {
-        if (!open && selectedCinema === null) {
-            return;
-        }
-
-        setIsCinemaModalOpen(open);
-        setSearch('');
-    };
-
-    const screeningsForActiveDate = screenings.filter(
+    const screeningsForSelectedDate = screenings.filter(
         (screening) => screening.date === activeDate,
     );
-    const groupedScreenings = Object.values(
-        screeningsForActiveDate.reduce<
-            Record<
-                string,
-                {
-                    movie: Screening['movie'];
-                    screeningIds: string[];
-                    hallLabels: string[];
-                    times: Array<{
-                        id: string;
-                        startsAt: string;
-                        endsAt: string;
-                        hallLabel: string;
-                    }>;
-                }
-            >
-        >((groups, screening) => {
-            const groupKey = screening.movie.title;
 
-            if (!groups[groupKey]) {
-                groups[groupKey] = {
-                    movie: screening.movie,
-                    screeningIds: [],
-                    hallLabels: [screening.hall.label],
-                    times: [],
-                };
-            }
+    const groups: Record<
+        string,
+        Array<{
+            id: string;
+            startsAt: string;
+            endsAt: string;
+            hallLabel: string;
+            movie: {
+                id: string;
+                title: string;
+                description: string;
+                duration: number;
+                poster_url: string;
+            };
+        }>
+    > = {};
 
-            groups[groupKey].screeningIds.push(screening.id);
+    for (const screening of screeningsForSelectedDate) {
+        const movieId = screening.movie.id;
 
-            if (!groups[groupKey].hallLabels.includes(screening.hall.label)) {
-                groups[groupKey].hallLabels.push(screening.hall.label);
-            }
+        groups[movieId] ??= [];
 
-            groups[groupKey].times.push({
-                id: screening.id,
-                startsAt: screening.starts_at,
-                endsAt: screening.ends_at,
-                hallLabel: screening.hall.label,
-            });
+        groups[movieId].push({
+            id: screening.id,
+            startsAt: screening.starts_at,
+            endsAt: screening.ends_at,
+            hallLabel: screening.hall.label,
+            movie: {
+                id: screening.movie.id,
+                title: screening.movie.title,
+                description: screening.movie.description,
+                duration: screening.movie.duration,
+                poster_url: screening.movie.poster_url,
+            },
+        });
+    }
 
-            return groups;
-        }, {}),
-    );
+    const groupedScreenings = Object.values(groups);
 
     return (
         <>
             <Head title="Repertuar" />
 
-            <CinemaPickerModal
-                cinemas={cinemas}
-                isOpen={isCinemaModalVisible}
-                onOpenChange={handleCinemaModalOpenChange}
-                onSelect={handleSelectCinema}
-                required={isCinemaSelectionRequired}
-                search={search}
-                selectedCinemaId={selectedCinema?.id ?? null}
-                setSearch={setSearch}
-            />
-
             <section className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-8 sm:px-6">
-                <Card className="overflow-hidden rounded-[2rem] border-border/70 shadow-xl shadow-primary/5">
-                    <CardContent className="px-4 py-4 sm:px-6 sm:py-6">
-                        <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-7">
-                            {scheduleDays.map((day) => {
-                                const isActive = day.date === activeDate;
-                                const screeningsCount = screenings.filter(
-                                    (screening) => screening.date === day.date,
-                                ).length;
+                <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-7">
+                    {scheduleDays.map((day) => {
+                        const isActive = day.date === activeDate;
 
-                                return (
-                                    <Button
-                                        key={day.date}
-                                        type="button"
-                                        variant={
-                                            isActive ? 'default' : 'outline'
-                                        }
-                                        size="lg"
-                                        className="h-auto min-h-24 flex-col items-start gap-1 rounded-2xl px-4 py-4 text-left"
-                                        onClick={() => setActiveDate(day.date)}
-                                    >
-                                        <span className="text-[0.68rem] font-semibold tracking-[0.22em] uppercase opacity-80">
-                                            {day.relative_label}
-                                        </span>
-                                        <span className="text-base font-semibold">
-                                            {day.label}
-                                        </span>
-                                        <span className="text-xs opacity-80">
-                                            {lang.screening} ({screeningsCount})
-                                        </span>
-                                    </Button>
-                                );
-                            })}
-                        </div>
-                    </CardContent>
-                </Card>
+                        const screeningsCount = screenings.filter(
+                            (screening) => screening.date === day.date,
+                        ).length;
+
+                        return (
+                            <Button
+                                key={day.date}
+                                type="button"
+                                variant={isActive ? 'default' : 'outline'}
+                                size="lg"
+                                className="h-auto min-h-24 cursor-pointer flex-col items-start gap-1 rounded-2xl px-4 py-4 text-left"
+                                onClick={() => setActiveDate(day.date)}
+                            >
+                                <span className="text-[0.68rem] font-semibold tracking-[0.22em] uppercase opacity-80">
+                                    {day.relative_label}
+                                </span>
+                                <span className="text-base font-semibold">
+                                    {day.label}
+                                </span>
+                                <span className="text-xs opacity-80">
+                                    Seanse ({screeningsCount})
+                                </span>
+                            </Button>
+                        );
+                    })}
+                </div>
+
 
                 {!selectedCinema ? (
-                    <Card className="rounded-[2rem] border-dashed">
+                    <Card className="border-dashed">
                         <CardContent className="flex flex-col items-center justify-center gap-3 px-6 py-12 text-center">
                             <div className="flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
                                 <Ticket className="size-5" />
                             </div>
                             <div className="space-y-2">
                                 <p className="text-xl font-semibold">
-                                    {lang.select_cinema}
+                                    Wybierz kino
                                 </p>
                             </div>
                         </CardContent>
                     </Card>
-                ) : screeningsForActiveDate.length === 0 ? (
-                    <Card className="rounded-[2rem] border-dashed">
+                ) : screeningsForSelectedDate.length === 0 ? (
+                    <Card className="border-dashed">
                         <CardContent className="flex flex-col items-center justify-center gap-3 px-6 py-12 text-center">
                             <div className="flex size-12 items-center justify-center rounded-2xl bg-secondary text-secondary-foreground">
                                 <Clock3 className="size-5" />
                             </div>
                             <div className="space-y-2">
                                 <p className="text-xl font-semibold">
-                                    {lang.no_screenings}
+                                    Brak seansów w tym dniu
                                 </p>
                             </div>
                         </CardContent>
                     </Card>
                 ) : (
                     <div className="space-y-4">
-                        {groupedScreenings.map((screeningGroup) => (
-                            <Card
-                                key={screeningGroup.screeningIds.join('-')}
-                                className="w-full rounded-[2rem] border-border/70 shadow-lg shadow-primary/5"
-                            >
-                                <CardContent className="px-5 py-5 sm:px-6 sm:py-6">
-                                    <div className="flex flex-col gap-5 md:flex-row md:items-start">
-                                        <img
-                                            src={
-                                                screeningGroup.movie.poster_url
-                                            }
-                                            alt={screeningGroup.movie.title}
-                                            className="h-56 w-full rounded-[1.5rem] object-cover md:w-40"
-                                        />
+                        {groupedScreenings.map((screeningGroup) => {
+                            const movie = screeningGroup[0].movie;
 
-                                        <div className="flex min-w-0 flex-1 flex-col gap-5">
-                                            <div className="space-y-3">
-                                                <div className="flex flex-wrap items-center gap-2">
-                                                    <Badge
-                                                        variant="secondary"
-                                                        className="py-1"
-                                                    >
-                                                        {screeningGroup.hallLabels.join(
-                                                            ', ',
-                                                        )}
-                                                    </Badge>
-                                                    <Badge
-                                                        variant="outline"
-                                                        className="py-1"
-                                                    >
-                                                        {
-                                                            screeningGroup.movie
-                                                                .duration
-                                                        }{' '}
-                                                        min
-                                                    </Badge>
+                            return (
+                                <Card
+                                    key={movie.title}
+                                    className="w-full border-border/70 shadow-lg shadow-primary/5"
+                                >
+                                    <CardContent>
+                                        <div className="flex flex-col gap-5 md:flex-row md:items-start">
+                                            <img
+                                                src={movie.poster_url}
+                                                alt={movie.title}
+                                                className="h-56 w-full rounded-xl object-cover md:w-40"
+                                            />
+
+                                            <div className="flex min-w-0 flex-1 flex-col gap-5">
+                                                <div className="space-y-3">
+                                                    <div className="flex flex-wrap items-center gap-2">
+                                                        <Badge className="text-xs">
+                                                            {movie.duration} min
+                                                        </Badge>
+                                                    </div>
+
+                                                    <div className="space-y-2">
+                                                        <h2 className="text-2xl font-semibold tracking-tight">
+                                                            {movie.title}
+                                                        </h2>
+                                                        <p className="max-w-3xl text-sm leading-7 text-muted-foreground">
+                                                            {movie.description}
+                                                        </p>
+                                                    </div>
                                                 </div>
 
-                                                <div className="space-y-2">
-                                                    <h2 className="text-2xl font-semibold tracking-tight">
-                                                        {
-                                                            screeningGroup.movie
-                                                                .title
-                                                        }
-                                                    </h2>
-                                                    <p className="max-w-3xl text-sm leading-7 text-muted-foreground">
-                                                        {
-                                                            screeningGroup.movie
-                                                                .description
-                                                        }
-                                                    </p>
-                                                </div>
-                                            </div>
+                                                <Separator />
 
-                                            <Separator />
-
-                                            <div className="flex flex-wrap gap-3">
-                                                {screeningGroup.times.map(
-                                                    (time) => (
-                                                        <Button
-                                                            key={time.id}
-                                                            asChild
-                                                            type="button"
-                                                            variant="outline"
-                                                            className="h-auto rounded-2xl px-4 py-3"
-                                                        >
-                                                            <Link
-                                                                href={ScreeningReservationController(
-                                                                    time.id,
-                                                                )}
-                                                                className="flex flex-col items-start"
+                                                <div className="flex flex-wrap gap-3">
+                                                    {screeningGroup.map(
+                                                        (screening) => (
+                                                            <Button
+                                                                key={`${screening.movie.title}-${screening.startsAt}-${screening.endsAt}`}
+                                                                asChild
+                                                                type="button"
+                                                                variant="outline"
+                                                                className="h-auto px-3 py-2"
                                                             >
-                                                                <div className="flex items-center gap-2">
-                                                                    <Clock3 className="size-4 text-primary" />
-                                                                    <p className="text-lg font-semibold tracking-tight">
-                                                                        {
-                                                                            time.startsAt
-                                                                        }
+                                                                <Link
+                                                                    href={ScreeningReservationController(
+                                                                        screening.id,
+                                                                    )}
+                                                                    className="flex flex-col items-start"
+                                                                >
+                                                                    <div className="flex items-center gap-2">
+                                                                        <Clock3 className="size-4 text-primary" />
+                                                                        <p className="text-lg font-semibold tracking-tight">
+                                                                            {
+                                                                                screening.startsAt
+                                                                            }
+                                                                        </p>
+                                                                    </div>
+                                                                    <p className="mt-1 text-xs text-muted-foreground">
+                                                                        do {screening.endsAt} | {screening.hallLabel}
                                                                     </p>
-                                                                </div>
-                                                                <p className="mt-1 text-xs text-muted-foreground">
-                                                                    do{' '}
-                                                                    {
-                                                                        time.endsAt
-                                                                    }{' '}
-                                                                    •{' '}
-                                                                    {
-                                                                        time.hallLabel
-                                                                    }
-                                                                </p>
-                                                            </Link>
-                                                        </Button>
-                                                    ),
-                                                )}
+                                                                </Link>
+                                                            </Button>
+                                                        ),
+                                                    )}
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        ))}
+                                    </CardContent>
+                                </Card>
+                            );
+                        })}
                     </div>
                 )}
             </section>

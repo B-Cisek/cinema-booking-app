@@ -6,10 +6,15 @@ import cinemasRoutes from '@/routes/cinemas';
 import type { Cinema, SharedPageProps } from '@/types';
 
 export default function CinemaPicker() {
+    const { url } = usePage();
+    const isHome = url === '/';
+
     const { selectedCinema, cinemas, globalLang } =
         usePage<SharedPageProps>().props;
 
-    const [isCinemaModalOpen, setIsCinemaModalOpen] = useState(false);
+    const [isCinemaModalOpen, setIsCinemaModalOpen] = useState(
+        () => isHome && selectedCinema === null,
+    );
     const [search, setSearch] = useState('');
 
     const handleSelectCinema = (cinema: Cinema): void => {
@@ -60,6 +65,7 @@ export default function CinemaPicker() {
             </button>
 
             <CinemaPickerModal
+                required={isHome && selectedCinema === null}
                 cinemas={cinemas}
                 isOpen={isCinemaModalOpen}
                 onOpenChange={handleCinemaModalOpenChange}
