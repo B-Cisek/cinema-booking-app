@@ -9,7 +9,6 @@ import CinemaHall from '@/components/CinemaHall';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
 import client from '@/lib/client';
 import screeningsRoutes from '@/routes/screenings';
 import type { HallRow, Seat, SharedPageProps } from '@/types';
@@ -227,22 +226,28 @@ export default function ReservationPage({
         <>
             <Head title={`Rezerwacja - ${screening.movie.title}`} />
 
-            <section className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-8 pb-32 sm:px-6 sm:pb-36">
-                <Card className="overflow-hidden rounded-[2rem] border-border/70 shadow-xl shadow-primary/5">
-                    <CardContent className="px-5 py-4 sm:px-6 sm:py-5">
+            <section className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6 pb-32 sm:px-6 sm:pb-36">
+                <Card className="overflow-hidden border-border/70 shadow-xl shadow-primary/5">
+                    <CardContent>
                         <div className="flex flex-col gap-4 md:flex-row md:items-start">
                             <img
                                 src={screening.movie.poster_url}
                                 alt={screening.movie.title}
-                                className="h-52 w-full rounded-[1.5rem] object-cover md:w-40"
+                                className="h-52 w-full rounded-xl object-cover md:w-40"
                             />
 
                             <div className="flex min-w-0 flex-1 flex-col gap-4">
                                 <div className="flex flex-wrap items-center gap-2">
-                                    <Badge variant="outline" className="py-1">
+                                    <Badge
+                                        variant="default"
+                                        className="text-xs"
+                                    >
                                         {screening.hall.label}
                                     </Badge>
-                                    <Badge variant="outline" className="py-1">
+                                    <Badge
+                                        variant="default"
+                                        className="text-xs"
+                                    >
                                         {screening.movie.duration} min
                                     </Badge>
                                 </div>
@@ -255,8 +260,6 @@ export default function ReservationPage({
                                         {screening.movie.description}
                                     </p>
                                 </div>
-
-                                <Separator />
 
                                 <div className="grid gap-2.5 sm:grid-cols-3">
                                     <div className="rounded-2xl border border-border bg-muted/30 px-4 py-3">

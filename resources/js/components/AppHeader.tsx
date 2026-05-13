@@ -2,8 +2,17 @@ import { Link } from '@inertiajs/react';
 import { LogOut, Ticket, UserRound } from 'lucide-react';
 import CinemaPicker from '@/components/CinemaPicker';
 import { Button } from '@/components/ui/button';
+import {
+    DropdownMenu,
+    DropdownMenuContent,
+    DropdownMenuItem,
+    DropdownMenuLabel,
+    DropdownMenuSeparator,
+    DropdownMenuTrigger,
+} from '@/components/ui/dropdown-menu';
 import { home, login, logout, register } from '@/routes';
 import type { Auth } from '@/types';
+import HeaderUser from '@/components/HeaderUser';
 
 interface AppHeaderProps {
     auth: Auth;
@@ -30,32 +39,7 @@ export default function AppHeader({ auth }: AppHeaderProps) {
                     <CinemaPicker />
 
                     {auth.user ? (
-                        <div className="flex items-center gap-2">
-                            <div className="hidden items-center gap-3 rounded-2xl border border-border bg-card px-4 py-2 sm:flex">
-                                <div className="flex size-9 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                                    <UserRound className="size-4" />
-                                </div>
-                                <div className="min-w-0">
-                                    <p className="text-[0.68rem] font-semibold tracking-[0.22em] text-muted-foreground uppercase">
-                                        Konto
-                                    </p>
-                                    <p className="max-w-56 truncate text-sm font-medium">
-                                        {auth.user.email}
-                                    </p>
-                                </div>
-                            </div>
-
-                            <Button
-                                asChild
-                                variant="outline"
-                                className="rounded-2xl"
-                            >
-                                <Link href={logout()} method="post" as="button">
-                                    <LogOut className="size-4" />
-                                    Wyloguj
-                                </Link>
-                            </Button>
-                        </div>
+                        <HeaderUser user={auth.user} />
                     ) : (
                         <>
                             <Button

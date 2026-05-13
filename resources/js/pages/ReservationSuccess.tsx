@@ -51,11 +51,11 @@ export default function ReservationSuccessPage({
         <>
             <Head title={`Rezerwacja ${booking.number}`} />
 
-            <section className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-8 sm:px-6">
-                <Card className="overflow-hidden rounded-[2rem] border-border/70 shadow-xl shadow-primary/5">
-                    <CardContent className="px-5 py-6 sm:px-6 sm:py-8">
+            <section className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-6 sm:px-6">
+                <Card className="overflow-hidden rounded-xl border-border/70 shadow-xl shadow-primary/5">
+                    <CardContent>
                         <div className="flex flex-col gap-5 md:flex-row md:items-center">
-                            <div className="flex size-16 items-center justify-center rounded-3xl bg-primary/10 text-primary">
+                            <div className="flex size-16 items-center justify-center rounded-xl bg-primary/10 text-primary">
                                 <CheckCircle2 className="size-8" />
                             </div>
 
@@ -68,9 +68,9 @@ export default function ReservationSuccessPage({
                                         {screening.movie.title}
                                     </h1>
                                     <p className="text-sm leading-6 text-muted-foreground">
-                                        Numer rezerwacji: {booking.number}.
+                                        Numer rezerwacji: <strong>{booking.number}</strong>.
                                         Potwierdzenie zostało przygotowane dla
-                                        adresu {booking.email}.
+                                        adresu <strong>{booking.email}</strong>.
                                     </p>
                                 </div>
 
@@ -117,10 +117,10 @@ export default function ReservationSuccessPage({
                 </Card>
 
                 <div className="grid gap-6 lg:grid-cols-[1.1fr_0.9fr]">
-                    <Card className="rounded-[2rem] border-border/70 shadow-lg shadow-primary/5">
+                    <Card className="rounded-xl border-border/70 shadow-lg shadow-primary/5">
                         <CardHeader className="gap-3">
                             <div className="flex items-center gap-3">
-                                <div className="flex size-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                                <div className="flex size-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
                                     <Ticket className="size-5" />
                                 </div>
                                 <CardTitle className="text-2xl tracking-tight">
@@ -128,7 +128,7 @@ export default function ReservationSuccessPage({
                                 </CardTitle>
                             </div>
                         </CardHeader>
-                        <CardContent className="space-y-3 px-5 pb-6 sm:px-6">
+                        <CardContent className="space-y-3">
                             {booking.seats.map((seat) => (
                                 <div
                                     key={seat.id}
@@ -145,10 +145,10 @@ export default function ReservationSuccessPage({
                         </CardContent>
                     </Card>
 
-                    <Card className="rounded-[2rem] border-border/70 shadow-lg shadow-primary/5">
+                    <Card className="rounded-xl border-border/70 shadow-lg shadow-primary/5">
                         <CardHeader className="gap-3">
                             <div className="flex items-center gap-3">
-                                <div className="flex size-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                                <div className="flex size-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
                                     <Mail className="size-5" />
                                 </div>
                                 <CardTitle className="text-2xl tracking-tight">
@@ -156,8 +156,8 @@ export default function ReservationSuccessPage({
                                 </CardTitle>
                             </div>
                         </CardHeader>
-                        <CardContent className="space-y-4 px-5 pb-6 sm:px-6">
-                            <div className="rounded-2xl border border-border bg-muted/20 px-4 py-4">
+                        <CardContent className="space-y-4">
+                            <div className="rounded-2xl border border-border bg-muted/20 px-4 py-2">
                                 <p className="text-sm text-muted-foreground">
                                     E-mail
                                 </p>
@@ -166,7 +166,7 @@ export default function ReservationSuccessPage({
                                 </p>
                             </div>
 
-                            <div className="rounded-2xl border border-border bg-muted/20 px-4 py-4">
+                            <div className="rounded-2xl border border-border bg-muted/20 px-4 py-2">
                                 <p className="text-sm text-muted-foreground">
                                     Suma
                                 </p>
@@ -178,7 +178,7 @@ export default function ReservationSuccessPage({
                             <Button
                                 asChild
                                 size="lg"
-                                className="h-12 w-full rounded-full text-base"
+                                className="h-12 w-full rounded-xl text-base"
                             >
                                 <Link href={home()}>Wróć do repertuaru</Link>
                             </Button>

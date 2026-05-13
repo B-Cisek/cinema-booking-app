@@ -17,7 +17,7 @@ readonly class SeatHold
         private BookingRepository $bookingRepository,
     ) {}
 
-    public function handle(string $screeningId, string $seatId, string $cinemaId, string $ownerIdentifier): void
+    public function handle(string $screeningId, string $seatId, string $cinemaId, string $userIdentifier): void
     {
         $isBooked = $this->bookingRepository->isSeatBooked($screeningId, $seatId);
 
@@ -29,7 +29,7 @@ readonly class SeatHold
             cinemaId: $cinemaId,
             screeningId: $screeningId,
             seatId: $seatId,
-            ownerIdentifier: $ownerIdentifier,
+            userIdentifier: $userIdentifier,
         );
 
         if ($expiresAt === null) {
@@ -41,7 +41,7 @@ readonly class SeatHold
             'cinemaId' => $cinemaId,
             'screeningId' => $screeningId,
             'seatId' => $seatId,
-            'ownerIdentifier' => $ownerIdentifier,
+            'userIdentifier' => $userIdentifier,
         ]);
     }
 }

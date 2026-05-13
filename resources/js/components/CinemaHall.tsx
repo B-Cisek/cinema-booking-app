@@ -27,8 +27,8 @@ export default function CinemaHall({
     const selectedSeatIdsSet = new Set(selectedSeatIds);
 
     return (
-        <Card className="gap-0 rounded-[2rem] border-border/70 shadow-lg shadow-primary/5">
-            <CardHeader className="gap-3 border-b border-border/70 py-4">
+        <Card className="gap-0 border-border/70 shadow-lg shadow-primary/5">
+            <CardHeader className="gap-3 border-b border-border/70">
                 <div className="flex items-center gap-3">
                     <div className="flex size-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
                         <Armchair className="size-5" />
@@ -43,7 +43,7 @@ export default function CinemaHall({
                     Kliknij miejsce, aby je zaznaczyć. Ponowne kliknięcie odznacza wybór.
                 </p>
             </CardHeader>
-            <CardContent className="space-y-8 px-5 py-6 sm:px-6 sm:py-8">
+            <CardContent className="space-y-6 px-5 py-4 sm:px-6 sm:py-6">
                 <div className="mx-auto max-w-2xl rounded-[1.75rem] border border-primary/20 bg-primary/8 px-6 py-3 text-center shadow-inner">
                     <p className="text-sm font-bold tracking-wider text-primary uppercase">
                         Ekran

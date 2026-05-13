@@ -14,12 +14,12 @@ final readonly class SeatHoldService
 
     public const string KEY_PREFIX = 'seat_hold';
 
-    public function hold(string $cinemaId, string $screeningId, string $seatId, string $ownerIdentifier): ?string
+    public function hold(string $cinemaId, string $screeningId, string $seatId, string $userIdentifier): ?string
     {
         $key = $this->createKey($cinemaId, $screeningId, $seatId);
         $expiresAt = CarbonImmutable::now()->addSeconds(self::HOLD_SECONDS)->toIso8601String();
         $payload = [
-            'user_identifier' => $ownerIdentifier,
+            'user_identifier' => $userIdentifier,
             'expires_at' => $expiresAt,
         ];
 

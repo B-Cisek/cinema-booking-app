@@ -9,6 +9,8 @@ import {
     CardHeader,
     CardTitle,
 } from '@/components/ui/card';
+import { Field, FieldError, FieldLabel } from '@/components/ui/field';
+import { Input } from '@/components/ui/input';
 import { home, login } from '@/routes';
 import registerRoutes from '@/routes/register';
 
@@ -40,8 +42,8 @@ export default function Register() {
 
             <section className="mx-auto flex min-h-[calc(100vh-5.5rem)] w-full max-w-6xl items-center px-4 py-10 sm:px-6">
                 <div className="grid w-full gap-8 lg:grid-cols-[0.95fr_1.05fr] lg:items-center">
-                    <Card className="order-2 rounded-[2rem] border-border/70 shadow-2xl shadow-primary/10 lg:order-1">
-                        <CardHeader className="space-y-2 px-6 pt-6 sm:px-8 sm:pt-8">
+                    <Card className="order-2 rounded-xl border-border/70 shadow-2xl shadow-primary/10 lg:order-1">
+                        <CardHeader className="space-y-1 px-6 pt-4 sm:px-8">
                             <CardTitle className="text-2xl">
                                 Załóż konto
                             </CardTitle>
@@ -51,18 +53,15 @@ export default function Register() {
                             </CardDescription>
                         </CardHeader>
 
-                        <CardContent className="px-6 pb-6 sm:px-8 sm:pb-8">
+                        <CardContent className="px-6 pb-4 sm:px-8">
                             <form onSubmit={handleSubmit} className="space-y-5">
-                                <div className="space-y-2">
-                                    <label
-                                        htmlFor="email"
-                                        className="text-sm font-medium"
-                                    >
+                                <Field className="gap-2">
+                                    <FieldLabel htmlFor="email">
                                         E-mail
-                                    </label>
-                                    <div className="flex items-center gap-3 rounded-2xl border border-border bg-background px-4 py-3 transition focus-within:border-primary/50 focus-within:ring-3 focus-within:ring-primary/10">
-                                        <Mail className="size-4 text-muted-foreground" />
-                                        <input
+                                    </FieldLabel>
+                                    <div className="relative">
+                                        <Mail className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+                                        <Input
                                             id="email"
                                             type="email"
                                             value={form.data.email}
@@ -72,28 +71,25 @@ export default function Register() {
                                                     event.target.value,
                                                 )
                                             }
-                                            className="w-full bg-transparent text-sm outline-none"
+                                            className="h-12 rounded-xl bg-background pl-10 text-sm md:text-sm"
                                             placeholder="twoj@email.pl"
                                             autoComplete="email"
                                         />
                                     </div>
                                     {form.errors.email ? (
-                                        <p className="text-sm text-destructive">
+                                        <FieldError>
                                             {form.errors.email}
-                                        </p>
+                                        </FieldError>
                                     ) : null}
-                                </div>
+                                </Field>
 
-                                <div className="space-y-2">
-                                    <label
-                                        htmlFor="password"
-                                        className="text-sm font-medium"
-                                    >
+                                <Field className="gap-2">
+                                    <FieldLabel htmlFor="password">
                                         Hasło
-                                    </label>
-                                    <div className="flex items-center gap-3 rounded-2xl border border-border bg-background px-4 py-3 transition focus-within:border-primary/50 focus-within:ring-3 focus-within:ring-primary/10">
-                                        <LockKeyhole className="size-4 text-muted-foreground" />
-                                        <input
+                                    </FieldLabel>
+                                    <div className="relative">
+                                        <LockKeyhole className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+                                        <Input
                                             id="password"
                                             type="password"
                                             value={form.data.password}
@@ -103,28 +99,25 @@ export default function Register() {
                                                     event.target.value,
                                                 )
                                             }
-                                            className="w-full bg-transparent text-sm outline-none"
+                                            className="h-12 rounded-xl bg-background pl-10 text-sm md:text-sm"
                                             placeholder="Minimum 8 znaków"
                                             autoComplete="new-password"
                                         />
                                     </div>
                                     {form.errors.password ? (
-                                        <p className="text-sm text-destructive">
+                                        <FieldError>
                                             {form.errors.password}
-                                        </p>
+                                        </FieldError>
                                     ) : null}
-                                </div>
+                                </Field>
 
-                                <div className="space-y-2">
-                                    <label
-                                        htmlFor="password_confirmation"
-                                        className="text-sm font-medium"
-                                    >
+                                <Field className="gap-2">
+                                    <FieldLabel htmlFor="password_confirmation">
                                         Powtórz hasło
-                                    </label>
-                                    <div className="flex items-center gap-3 rounded-2xl border border-border bg-background px-4 py-3 transition focus-within:border-primary/50 focus-within:ring-3 focus-within:ring-primary/10">
-                                        <BadgeCheck className="size-4 text-muted-foreground" />
-                                        <input
+                                    </FieldLabel>
+                                    <div className="relative">
+                                        <BadgeCheck className="pointer-events-none absolute top-1/2 left-3 size-4 -translate-y-1/2 text-muted-foreground" />
+                                        <Input
                                             id="password_confirmation"
                                             type="password"
                                             value={
@@ -136,17 +129,22 @@ export default function Register() {
                                                     event.target.value,
                                                 )
                                             }
-                                            className="w-full bg-transparent text-sm outline-none"
+                                            className="h-12 rounded-xl bg-background pl-10 text-sm md:text-sm"
                                             placeholder="Powtórz hasło"
                                             autoComplete="new-password"
                                         />
                                     </div>
-                                </div>
+                                    {form.errors.password_confirmation ? (
+                                        <FieldError>
+                                            {form.errors.password_confirmation}
+                                        </FieldError>
+                                    ) : null}
+                                </Field>
 
                                 <Button
                                     type="submit"
                                     size="lg"
-                                    className="w-full rounded-2xl shadow-lg shadow-primary/20"
+                                    className="w-full cursor-pointer rounded-xl py-4 shadow-lg shadow-primary/20"
                                     disabled={form.processing}
                                 >
                                     {form.processing
@@ -158,7 +156,7 @@ export default function Register() {
                     </Card>
 
                     <div className="order-1 space-y-6 lg:order-2 lg:pl-8">
-                        <div className="inline-flex items-center gap-2 rounded-full border border-primary/20 bg-primary/10 px-4 py-2 text-sm font-medium text-primary">
+                        <div className="inline-flex items-center gap-2 rounded-xl border border-primary/20 bg-primary/10 px-4 py-2 text-sm font-medium text-primary">
                             <BadgeCheck className="size-4" />
                             Nowe konto w Cinema
                         </div>
@@ -175,13 +173,6 @@ export default function Register() {
                         </div>
 
                         <div className="flex flex-wrap items-center gap-3 text-sm">
-                            <Button
-                                asChild
-                                variant="outline"
-                                className="rounded-2xl"
-                            >
-                                <Link href={home()}>Wróć do repertuaru</Link>
-                            </Button>
                             <Link
                                 href={login()}
                                 className="inline-flex items-center gap-2 font-medium text-primary transition hover:opacity-80"

@@ -24,7 +24,11 @@ class SeatHoldController extends Controller
     public function __invoke(SeatHoldRequest $request): JsonResponse
     {
         $cinema = $this->cinemaResolver->resolve($request);
-        $ownerIdentifier = $this->guestTokenHandler->resolve($request);
+        $user = $request->user();
+
+        $userIdentifier =  $user === null
+            ? $this->guestTokenHandler->resolve($request)
+            : $user->id;
 
         if ($cinema === null) {
             throw new CinemaNotSelectException;
@@ -34,7 +38,7 @@ class SeatHoldController extends Controller
             screeningId: $request->validated('screeningId'),
             seatId: $request->validated('seatId'),
             cinemaId: $cinema->getKey(),
-            ownerIdentifier: $ownerIdentifier,
+            userIdentifier: $userIdentifier,
         );
 
         return JsonResponseFactory::make(ResponseCode::SEAT_HELD);

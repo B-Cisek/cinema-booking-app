@@ -11,10 +11,20 @@ import {
 import type { FormEvent } from 'react';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+    Field,
+    FieldContent,
+    FieldDescription, FieldError,
+    FieldLabel,
+    FieldTitle,
+} from '@/components/ui/field';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import screeningsRoutes from '@/routes/screenings';
 import type { SharedPageProps } from '@/types';
+import { Badge } from '@/components/ui/badge';
+import { Input } from '@/components/ui/input';
 
-interface ReservationSummaryPageProps extends SharedPageProps{
+interface ReservationSummaryPageProps extends SharedPageProps {
     screening: {
         id: string;
         starts_at: string;
@@ -81,14 +91,14 @@ export default function ReservationSummaryPage({
         <>
             <Head title={`Podsumowanie - ${screening.movie.title}`} />
 
-            <section className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-8 sm:px-6">
-                <Card className="overflow-hidden rounded-[2rem] border-border/70 shadow-xl shadow-primary/5">
-                    <CardContent className="px-5 py-4 sm:px-6 sm:py-5">
+            <section className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-6 sm:px-6">
+                <Card className="overflow-hidden border-border/70 shadow-xl shadow-primary/5">
+                    <CardContent>
                         <div className="flex flex-col gap-4 md:flex-row md:items-start">
                             <img
                                 src={screening.movie.poster_url}
                                 alt={screening.movie.title}
-                                className="h-52 w-full rounded-[1.5rem] object-cover md:w-40"
+                                className="h-52 w-full rounded-xl object-cover md:w-40"
                             />
 
                             <div className="flex min-w-0 flex-1 flex-col gap-4">
@@ -98,14 +108,15 @@ export default function ReservationSummaryPage({
                                     </h1>
                                     <p className="text-sm leading-6 text-muted-foreground">
                                         Sprawdź wybrane miejsca i wybierz metodę
-                                        płatności. {loggedInUserEmail
+                                        płatności.{' '}
+                                        {loggedInUserEmail
                                             ? 'Po zaksięgowaniu testowej płatności wyślemy bilet na adres przypisany do Twojego konta.'
                                             : 'Podaj adres e-mail, na który wyślemy potwierdzenie kolejnego kroku rezerwacji.'}
                                     </p>
                                 </div>
 
                                 <div className="grid gap-2.5 sm:grid-cols-3">
-                                    <div className="rounded-2xl border border-border bg-muted/30 px-4 py-3">
+                                    <div className="rounded-xl border border-border bg-muted/30 px-4 py-3">
                                         <p className="text-xs font-semibold tracking-[0.2em] text-muted-foreground uppercase">
                                             Film
                                         </p>
@@ -114,7 +125,7 @@ export default function ReservationSummaryPage({
                                         </p>
                                     </div>
 
-                                    <div className="rounded-2xl border border-border bg-muted/30 px-4 py-3">
+                                    <div className="rounded-xl border border-border bg-muted/30 px-4 py-3">
                                         <p className="text-xs font-semibold tracking-[0.2em] text-muted-foreground uppercase">
                                             Data i godzina
                                         </p>
@@ -135,7 +146,7 @@ export default function ReservationSummaryPage({
                                         </div>
                                     </div>
 
-                                    <div className="rounded-2xl border border-border bg-muted/30 px-4 py-3">
+                                    <div className="rounded-xl border border-border bg-muted/30 px-4 py-3">
                                         <p className="text-xs font-semibold tracking-[0.2em] text-muted-foreground uppercase">
                                             Kino
                                         </p>
@@ -159,66 +170,10 @@ export default function ReservationSummaryPage({
                     onSubmit={handleSubmit}
                 >
                     <div className="space-y-6">
-                        {!loggedInUserEmail && (
-                            <Card className="rounded-[2rem] border-border/70 shadow-lg shadow-primary/5">
-                                <CardHeader className="gap-3">
-                                    <div className="flex items-center gap-3">
-                                        <div className="flex size-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
-                                            <Mail className="size-5" />
-                                        </div>
-                                        <div>
-                                            <p className="text-xs font-semibold tracking-[0.22em] text-muted-foreground uppercase">
-                                                Twoje dane
-                                            </p>
-                                            <CardTitle className="text-2xl tracking-tight">
-                                                Kontakt do wysyłki biletu
-                                            </CardTitle>
-                                        </div>
-                                    </div>
-                                </CardHeader>
-                                <CardContent className="space-y-4 px-5 pb-6 sm:px-6">
-                                    <div className="space-y-2">
-                                        <label
-                                            htmlFor="email"
-                                            className="text-sm font-semibold"
-                                        >
-                                            Adres e-mail
-                                        </label>
-                                        <input
-                                            id="email"
-                                            type="email"
-                                            autoComplete="email"
-                                            value={form.data.email}
-                                            onChange={(event) =>
-                                                form.setData(
-                                                    'email',
-                                                    event.target.value,
-                                                )
-                                            }
-                                            placeholder="np. jan.kowalski@example.com"
-                                            className="flex h-12 w-full rounded-2xl border border-input bg-background px-4 text-sm shadow-sm transition outline-none placeholder:text-muted-foreground focus-visible:border-ring focus-visible:ring-[3px] focus-visible:ring-ring/20"
-                                        />
-                                        {form.errors.email && (
-                                            <p className="text-sm text-destructive">
-                                                {form.errors.email}
-                                            </p>
-                                        )}
-                                    </div>
-
-                                    <div className="rounded-2xl border border-border bg-muted/20 px-4 py-4">
-                                        <p className="text-sm leading-6 text-muted-foreground">
-                                            Na ten adres wyślemy bilet po
-                                            zaksięgowaniu testowej płatności.
-                                        </p>
-                                    </div>
-                                </CardContent>
-                            </Card>
-                        )}
-
-                        <Card className="rounded-[2rem] border-border/70 shadow-lg shadow-primary/5">
+                        <Card className="border-border/70 shadow-lg shadow-primary/5">
                             <CardHeader className="gap-3">
                                 <div className="flex items-center gap-3">
-                                    <div className="flex size-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                                    <div className="flex size-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
                                         <CreditCard className="size-5" />
                                     </div>
                                     <div>
@@ -231,38 +186,38 @@ export default function ReservationSummaryPage({
                                     </div>
                                 </div>
                             </CardHeader>
-                            <CardContent className="space-y-3 px-5 pb-6 sm:px-6">
-                                {paymentMethods.map((paymentMethod) => (
-                                    <label
-                                        key={paymentMethod.code}
-                                        className="flex cursor-pointer items-start gap-3 rounded-2xl border border-border bg-muted/20 px-4 py-4 transition hover:border-primary/40"
-                                    >
-                                        <input
-                                            type="radio"
-                                            name="paymentMethod"
-                                            value={paymentMethod.code}
-                                            checked={
-                                                form.data.paymentMethod ===
-                                                paymentMethod.code
-                                            }
-                                            onChange={(event) =>
-                                                form.setData(
-                                                    'paymentMethod',
-                                                    event.target.value,
-                                                )
-                                            }
-                                            className="mt-1 size-4 border-border text-primary focus:ring-primary"
-                                        />
-                                        <div className="space-y-1">
-                                            <p className="font-semibold">
-                                                {paymentMethod.label}
-                                            </p>
-                                            <p className="text-sm text-muted-foreground">
-                                                {paymentMethod.description}
-                                            </p>
-                                        </div>
-                                    </label>
-                                ))}
+                            <CardContent className="space-y-3 px-5">
+                                <RadioGroup
+                                    value={form.data.paymentMethod}
+                                    onValueChange={(value) =>
+                                        form.setData('paymentMethod', value)
+                                    }
+                                    className="w-full"
+                                >
+                                    {paymentMethods.map((paymentMethod) => (
+                                        <FieldLabel
+                                            key={paymentMethod.code}
+                                            htmlFor={paymentMethod.code}
+                                        >
+                                            <Field orientation="horizontal">
+                                                <FieldContent>
+                                                    <FieldTitle>
+                                                        {paymentMethod.label}
+                                                    </FieldTitle>
+                                                    <FieldDescription>
+                                                        {
+                                                            paymentMethod.description
+                                                        }
+                                                    </FieldDescription>
+                                                </FieldContent>
+                                                <RadioGroupItem
+                                                    value={paymentMethod.code}
+                                                    id={paymentMethod.code}
+                                                />
+                                            </Field>
+                                        </FieldLabel>
+                                    ))}
+                                </RadioGroup>
 
                                 {form.errors.paymentMethod && (
                                     <p className="text-sm text-destructive">
@@ -273,10 +228,10 @@ export default function ReservationSummaryPage({
                         </Card>
                     </div>
 
-                    <Card className="rounded-[2rem] border-border/70 shadow-lg shadow-primary/5">
+                    <Card className="border-border/70 shadow-lg shadow-primary/5">
                         <CardHeader className="gap-3">
                             <div className="flex items-center gap-3">
-                                <div className="flex size-11 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                                <div className="flex size-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
                                     <Ticket className="size-5" />
                                 </div>
                                 <div>
@@ -289,22 +244,17 @@ export default function ReservationSummaryPage({
                                 </div>
                             </div>
                         </CardHeader>
-                        <CardContent className="space-y-4 px-5 pb-6 sm:px-6">
+                        <CardContent className="space-y-4">
                             <div className="space-y-3">
                                 {selectedSeats.map((seat) => (
                                     <div
                                         key={seat.id}
-                                        className="rounded-2xl border border-border bg-muted/20 px-4 py-4"
+                                        className="rounded-xl border border-border bg-muted/20 px-4 py-4"
                                     >
                                         <div className="flex items-start justify-between gap-4">
                                             <div className="min-w-0 space-y-1">
                                                 <p className="font-semibold">
                                                     Bilet: miejsce {seat.label}
-                                                </p>
-                                                <p className="text-sm text-muted-foreground">
-                                                    {seatTypeLabels[
-                                                        seat.seatType
-                                                    ] ?? seat.seatType}
                                                 </p>
                                             </div>
                                             <p className="shrink-0 font-semibold">
@@ -313,18 +263,23 @@ export default function ReservationSummaryPage({
                                         </div>
 
                                         <div className="mt-3 flex items-center gap-2 text-sm text-primary">
-                                            <span className="rounded-full bg-primary/10 px-3 py-1 font-semibold">
+                                            <Badge className="font-bold">
                                                 Rząd {seat.row}
-                                            </span>
+                                            </Badge>
+                                            <Badge className="font-bold">
+                                                {seatTypeLabels[
+                                                    seat.seatType
+                                                ] ?? seat.seatType}
+                                            </Badge>
                                         </div>
                                     </div>
                                 ))}
                             </div>
 
-                            <div className="rounded-[1.75rem] border border-primary/15 bg-primary/5 px-5 py-5">
+                            <div className="rounded-xl border border-primary/15 bg-primary/5 px-3 py-3">
                                 <div className="flex items-center justify-between gap-4">
                                     <div className="flex items-center gap-3">
-                                        <div className="flex size-10 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                                        <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
                                             <CircleDollarSign className="size-5" />
                                         </div>
                                         <div>
@@ -339,7 +294,52 @@ export default function ReservationSummaryPage({
                                 </div>
                             </div>
 
-                            <div className="rounded-2xl border border-amber-500/25 bg-amber-500/10 px-4 py-4">
+                            {!loggedInUserEmail && (
+                                <div className="space-y-4 rounded-xl border border-border bg-muted/20 px-3 py-3">
+                                    <div className="flex items-start gap-3">
+                                        <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                                            <Mail className="size-5" />
+                                        </div>
+                                        <div className="min-w-0 space-y-1">
+                                            <p className="text-sm font-semibold">
+                                                Adres e-mail
+                                            </p>
+                                            <p className="text-sm leading-6 text-muted-foreground">
+                                                Na ten adres wyślemy bilet.
+                                            </p>
+                                        </div>
+                                    </div>
+
+                                    <div className="space-y-2">
+                                        <Field>
+                                            <FieldLabel htmlFor="email">
+                                                Email
+                                            </FieldLabel>
+                                            <Input
+                                                id="email"
+                                                type="email"
+                                                autoComplete="email"
+                                                placeholder="np. jan.kowalski@example.com"
+                                                value={form.data.email}
+                                                onChange={(event) =>
+                                                    form.setData(
+                                                        'email',
+                                                        event.target.value,
+                                                    )
+                                                }
+                                                required
+                                            />
+                                            {form.errors.email && (
+                                                <FieldError>
+                                                    {form.errors.email}
+                                                </FieldError>
+                                            )}
+                                        </Field>
+                                    </div>
+                                </div>
+                            )}
+
+                            <div className="rounded-xl border border-amber-500/25 bg-amber-500/10 px-4 py-4">
                                 <p className="text-sm leading-6 text-amber-900">
                                     Klikając przycisk poniżej, kupujesz z
                                     obowiązkiem zapłaty i przechodzisz do
@@ -356,7 +356,7 @@ export default function ReservationSummaryPage({
                             <Button
                                 type="submit"
                                 size="lg"
-                                className="h-12 w-full rounded-full text-base"
+                                className="h-12 w-full rounded-xl text-base"
                                 disabled={form.processing}
                             >
                                 {form.processing

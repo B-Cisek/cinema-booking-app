@@ -12,13 +12,13 @@ readonly class SeatRelease
         private SeatHoldService $seatHoldService,
     ) {}
 
-    public function handle(string $screeningId, string $seatId, string $cinemaId, string $ownerIdentifier): void
+    public function handle(string $screeningId, string $seatId, string $cinemaId, string $userIdentifier): void
     {
         $this->seatHoldService->release(
             cinemaId: $cinemaId,
             screeningId: $screeningId,
             seatId: $seatId,
-            ownerIdentifier: $ownerIdentifier,
+            userIdentifier: $userIdentifier,
         );
     }
 }

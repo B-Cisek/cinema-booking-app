@@ -82,7 +82,7 @@ export default function Home({
                                 type="button"
                                 variant={isActive ? 'default' : 'outline'}
                                 size="lg"
-                                className="h-auto min-h-24 cursor-pointer flex-col items-start gap-1 rounded-2xl px-4 py-4 text-left"
+                                className="h-auto min-h-24 cursor-pointer flex-col items-start gap-1 rounded-xl px-4 py-4 text-left"
                                 onClick={() => setActiveDate(day.date)}
                             >
                                 <span className="text-[0.68rem] font-semibold tracking-[0.22em] uppercase opacity-80">
@@ -103,7 +103,7 @@ export default function Home({
                 {!selectedCinema ? (
                     <Card className="border-dashed">
                         <CardContent className="flex flex-col items-center justify-center gap-3 px-6 py-12 text-center">
-                            <div className="flex size-12 items-center justify-center rounded-2xl bg-primary/10 text-primary">
+                            <div className="flex size-12 items-center justify-center rounded-xl bg-primary/10 text-primary">
                                 <Ticket className="size-5" />
                             </div>
                             <div className="space-y-2">
@@ -116,7 +116,7 @@ export default function Home({
                 ) : screeningsForSelectedDate.length === 0 ? (
                     <Card className="border-dashed">
                         <CardContent className="flex flex-col items-center justify-center gap-3 px-6 py-12 text-center">
-                            <div className="flex size-12 items-center justify-center rounded-2xl bg-secondary text-secondary-foreground">
+                            <div className="flex size-12 items-center justify-center rounded-xl bg-secondary text-secondary-foreground">
                                 <Clock3 className="size-5" />
                             </div>
                             <div className="space-y-2">
