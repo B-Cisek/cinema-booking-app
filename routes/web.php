@@ -6,6 +6,7 @@ use App\Http\Controllers\CompleteScreeningReservationPaymentController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\LogoutController;
+use App\Http\Controllers\PurchaseHistoryController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\ScreeningReservationController;
 use App\Http\Controllers\ScreeningReservationPaymentController;
@@ -28,6 +29,7 @@ Route::middleware('guest')->group(function (): void {
 });
 
 Route::middleware('auth')->group(function (): void {
+    Route::get('/purchase-history', PurchaseHistoryController::class)->name('purchase-history');
     Route::post('/logout', LogoutController::class)->name('logout');
 });
 

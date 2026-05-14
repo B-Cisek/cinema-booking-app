@@ -1,11 +1,5 @@
 import { Link, router } from '@inertiajs/react';
-import {
-    BadgeCheckIcon,
-    BellIcon,
-    CreditCardIcon,
-    LogOutIcon,
-    UserRound,
-} from 'lucide-react';
+import { CreditCardIcon, LogOutIcon, UserRound } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import {
     DropdownMenu,
@@ -43,9 +37,11 @@ export default function HeaderUser({ user }: HeaderUserProps) {
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
-                    <DropdownMenuItem disabled>
-                        <CreditCardIcon />
-                        Historia zakupów
+                    <DropdownMenuItem asChild>
+                        <Link href={purchaseHistory()}>
+                            <CreditCardIcon />
+                            Historia zakupów
+                        </Link>
                     </DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
