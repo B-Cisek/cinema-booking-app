@@ -1,3 +1,4 @@
+import { Link, router } from '@inertiajs/react';
 import {
     BadgeCheckIcon,
     BellIcon,
@@ -15,9 +16,8 @@ import {
     DropdownMenuSeparator,
     DropdownMenuTrigger,
 } from '@/components/ui/dropdown-menu';
+import { logout, purchaseHistory } from '@/routes';
 import type { User } from '@/types';
-import { router } from '@inertiajs/react';
-import { logout } from '@/routes';
 
 interface HeaderUserProps {
     user: User;
@@ -30,7 +30,7 @@ export default function HeaderUser({ user }: HeaderUserProps) {
                 <Button
                     variant="default"
                     size="icon-lg"
-                    className="rounded-xl border-border/80 bg-primary/10 text-primary hover:bg-accent/50"
+                    className="rounded-xl border-border/80 bg-primary/10 text-primary hover:bg-accent/50 size-10 cursor-pointer"
                 >
                     <UserRound className="size-6" />
                 </Button>
@@ -43,17 +43,9 @@ export default function HeaderUser({ user }: HeaderUserProps) {
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
                 <DropdownMenuGroup>
-                    <DropdownMenuItem>
-                        <BadgeCheckIcon />
-                        Account
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
+                    <DropdownMenuItem disabled>
                         <CreditCardIcon />
-                        Billing
-                    </DropdownMenuItem>
-                    <DropdownMenuItem>
-                        <BellIcon />
-                        Notifications
+                        Historia zakupów
                     </DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />

@@ -1,18 +1,10 @@
 import { Link } from '@inertiajs/react';
-import { LogOut, Ticket, UserRound } from 'lucide-react';
+import { TicketX } from 'lucide-react';
 import CinemaPicker from '@/components/CinemaPicker';
-import { Button } from '@/components/ui/button';
-import {
-    DropdownMenu,
-    DropdownMenuContent,
-    DropdownMenuItem,
-    DropdownMenuLabel,
-    DropdownMenuSeparator,
-    DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { home, login, logout, register } from '@/routes';
-import type { Auth } from '@/types';
 import HeaderUser from '@/components/HeaderUser';
+import { Button } from '@/components/ui/button';
+import { home, login, register } from '@/routes';
+import type { Auth } from '@/types';
 
 interface AppHeaderProps {
     auth: Auth;
@@ -26,8 +18,8 @@ export default function AppHeader({ auth }: AppHeaderProps) {
                     href={home()}
                     className="flex items-center gap-3 rounded-2xl transition hover:opacity-90"
                 >
-                    <div className="flex size-11 items-center justify-center rounded-2xl bg-primary text-primary-foreground shadow-lg shadow-primary/20">
-                        <Ticket className="size-5" />
+                    <div className="flex size-11 items-center justify-center rounded-xl bg-primary text-primary-foreground shadow-lg shadow-primary/20">
+                        <TicketX className="size-7" />
                     </div>
 
                     <p className="text-xl font-bold tracking-wider text-primary uppercase">
@@ -45,13 +37,15 @@ export default function AppHeader({ auth }: AppHeaderProps) {
                             <Button
                                 asChild
                                 variant="ghost"
-                                className="hidden sm:inline-flex"
+                                size="lg"
+                                className="hidden rounded-xl sm:inline-flex h-10"
                             >
                                 <Link href={login()}>Zaloguj się</Link>
                             </Button>
                             <Button
                                 asChild
-                                className="shadow-lg shadow-primary/20"
+                                size="lg"
+                                className="rounded-xl shadow-lg shadow-primary/20 h-10"
                             >
                                 <Link href={register()}>Rejestracja</Link>
                             </Button>

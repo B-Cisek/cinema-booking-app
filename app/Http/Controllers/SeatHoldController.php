@@ -26,7 +26,7 @@ class SeatHoldController extends Controller
         $cinema = $this->cinemaResolver->resolve($request);
         $user = $request->user();
 
-        $userIdentifier =  $user === null
+        $userIdentifier = $user === null
             ? $this->guestTokenHandler->resolve($request)
             : $user->id;
 

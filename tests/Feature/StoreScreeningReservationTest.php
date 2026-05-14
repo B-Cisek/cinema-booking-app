@@ -6,6 +6,7 @@ namespace Tests\Feature;
 
 use App\Commands\SelectCinema;
 use App\Enums\BookingStatus;
+use App\Enums\PaymentMethod;
 use App\Enums\RowLabel;
 use App\Enums\ScreeningStatus;
 use App\Enums\SeatType;
@@ -50,8 +51,8 @@ class StoreScreeningReservationTest extends TestCase
         Redis::shouldReceive('client->get')
             ->twice()
             ->andReturn(
-                json_encode(['owner_identifier' => $guestToken], JSON_THROW_ON_ERROR),
-                json_encode(['owner_identifier' => $guestToken], JSON_THROW_ON_ERROR),
+                json_encode(['user_identifier' => $guestToken], JSON_THROW_ON_ERROR),
+                json_encode(['user_identifier' => $guestToken], JSON_THROW_ON_ERROR),
             );
         Redis::shouldReceive('client->del')
             ->twice()
@@ -118,7 +119,7 @@ class StoreScreeningReservationTest extends TestCase
 
         Redis::shouldReceive('client->get')
             ->once()
-            ->andReturn(json_encode(['owner_identifier' => $guestToken], JSON_THROW_ON_ERROR));
+            ->andReturn(json_encode(['user_identifier' => $user->getKey()], JSON_THROW_ON_ERROR));
         Redis::shouldReceive('client->del')
             ->once()
             ->andReturn(1);
@@ -166,6 +167,7 @@ class StoreScreeningReservationTest extends TestCase
             'customer_email' => 'existing@example.com',
             'booking_number' => 'BKDUPL1',
             'status' => BookingStatus::PENDING,
+            'payment_method' => PaymentMethod::PAY_U,
         ]);
 
         $bookingNumberGenerator = $this->createMock(BookingNumberGenerator::class);
@@ -184,7 +186,7 @@ class StoreScreeningReservationTest extends TestCase
 
         Redis::shouldReceive('client->get')
             ->once()
-            ->andReturn(json_encode(['owner_identifier' => $guestToken], JSON_THROW_ON_ERROR));
+            ->andReturn(json_encode(['user_identifier' => $guestToken], JSON_THROW_ON_ERROR));
         Redis::shouldReceive('client->del')
             ->once()
             ->andReturn(1);
@@ -271,7 +273,7 @@ class StoreScreeningReservationTest extends TestCase
 
         Redis::shouldReceive('client->get')
             ->once()
-            ->andReturn(json_encode(['owner_identifier' => $guestToken], JSON_THROW_ON_ERROR));
+            ->andReturn(json_encode(['user_identifier' => $guestToken], JSON_THROW_ON_ERROR));
         Redis::shouldReceive('client->del')
             ->once()
             ->andReturn(1);

@@ -51,7 +51,7 @@ export default function ReservationSuccessPage({
         <>
             <Head title={`Rezerwacja ${booking.number}`} />
 
-            <section className="mx-auto flex w-full max-w-5xl flex-col gap-6 px-4 py-6 sm:px-6">
+            <section className="mx-auto flex w-full max-w-6xl flex-col gap-6 px-4 py-6 sm:px-6">
                 <Card className="overflow-hidden rounded-xl border-border/70 shadow-xl shadow-primary/5">
                     <CardContent>
                         <div className="flex flex-col gap-5 md:flex-row md:items-center">
