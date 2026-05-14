@@ -99,7 +99,6 @@ export default function Home({
                     })}
                 </div>
 
-
                 {!selectedCinema ? (
                     <Card className="border-dashed">
                         <CardContent className="flex flex-col items-center justify-center gap-3 px-6 py-12 text-center">
@@ -189,7 +188,14 @@ export default function Home({
                                                                         </p>
                                                                     </div>
                                                                     <p className="mt-1 text-xs text-muted-foreground">
-                                                                        do {screening.endsAt} | {screening.hallLabel}
+                                                                        do{' '}
+                                                                        {
+                                                                            screening.endsAt
+                                                                        }{' '}
+                                                                        |{' '}
+                                                                        {
+                                                                            screening.hallLabel
+                                                                        }
                                                                     </p>
                                                                 </Link>
                                                             </Button>

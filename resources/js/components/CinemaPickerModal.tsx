@@ -40,7 +40,7 @@ export default function CinemaPickerModal({
     selectedCinemaId,
     setSearch,
 }: CinemaPickerModalProps) {
-    const props = usePage().props
+    const props = usePage().props;
 
     const filteredCinemas = cinemas.filter((cinema) =>
         `${cinema.city} ${cinema.street}`

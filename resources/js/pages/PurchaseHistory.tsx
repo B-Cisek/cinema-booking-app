@@ -1,13 +1,18 @@
 import { Head, Link } from '@inertiajs/react';
-import { CalendarDays, CreditCard, MapPin, ReceiptText, Ticket } from 'lucide-react';
+import {
+    CalendarDays,
+    CreditCard,
+    MapPin,
+    ReceiptText,
+    Ticket,
+} from 'lucide-react';
 import {
     Accordion,
     AccordionContent,
     AccordionItem,
     AccordionTrigger,
 } from '@/components/ui/accordion';
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import {
     Pagination,
     PaginationContent,
@@ -103,7 +108,11 @@ export default function PurchaseHistoryPage({
                     <CardContent className="space-y-6">
                         {hasBookings ? (
                             <>
-                                <Accordion type="single" collapsible className="w-full">
+                                <Accordion
+                                    type="single"
+                                    collapsible
+                                    className="w-full"
+                                >
                                     {bookings.data.map((booking) => (
                                         <AccordionItem
                                             key={booking.id}
@@ -114,13 +123,30 @@ export default function PurchaseHistoryPage({
                                                 <div className="grid flex-1 gap-3 text-left md:grid-cols-[minmax(0,1.7fr)_auto_auto] md:items-center">
                                                     <div className="space-y-1">
                                                         <p className="text-lg font-semibold tracking-tight">
-                                                            {booking.screening.movie.title}
+                                                            {
+                                                                booking
+                                                                    .screening
+                                                                    .movie.title
+                                                            }
                                                         </p>
                                                         <p className="text-sm text-muted-foreground">
-                                                            {booking.screening.date},{' '}
-                                                            {booking.screening.starts_at}
+                                                            {
+                                                                booking
+                                                                    .screening
+                                                                    .date
+                                                            }
+                                                            ,{' '}
+                                                            {
+                                                                booking
+                                                                    .screening
+                                                                    .starts_at
+                                                            }
                                                             {' - '}
-                                                            {booking.screening.ends_at}
+                                                            {
+                                                                booking
+                                                                    .screening
+                                                                    .ends_at
+                                                            }
                                                         </p>
                                                     </div>
 
@@ -129,7 +155,9 @@ export default function PurchaseHistoryPage({
                                                             Suma
                                                         </p>
                                                         <p className="text-lg font-semibold tracking-tight">
-                                                            {formatPrice(booking.total)}
+                                                            {formatPrice(
+                                                                booking.total,
+                                                            )}
                                                         </p>
                                                     </div>
                                                 </div>
@@ -157,7 +185,9 @@ export default function PurchaseHistoryPage({
                                                             </span>
                                                         </div>
                                                         <p className="mt-2 font-semibold">
-                                                            {booking.purchased_at}
+                                                            {
+                                                                booking.purchased_at
+                                                            }
                                                         </p>
                                                     </div>
 
@@ -169,11 +199,26 @@ export default function PurchaseHistoryPage({
                                                             </span>
                                                         </div>
                                                         <p className="mt-2 font-semibold">
-                                                            {booking.screening.hall.label},{' '}
-                                                            {booking.screening.hall.cinema.city}
+                                                            {
+                                                                booking
+                                                                    .screening
+                                                                    .hall.label
+                                                            }
+                                                            ,{' '}
+                                                            {
+                                                                booking
+                                                                    .screening
+                                                                    .hall.cinema
+                                                                    .city
+                                                            }
                                                         </p>
                                                         <p className="text-sm text-muted-foreground">
-                                                            {booking.screening.hall.cinema.street}
+                                                            {
+                                                                booking
+                                                                    .screening
+                                                                    .hall.cinema
+                                                                    .street
+                                                            }
                                                         </p>
                                                     </div>
 
@@ -185,7 +230,9 @@ export default function PurchaseHistoryPage({
                                                             </span>
                                                         </div>
                                                         <p className="mt-2 font-semibold">
-                                                            {booking.payment_method}
+                                                            {
+                                                                booking.payment_method
+                                                            }
                                                         </p>
                                                     </div>
                                                 </div>
@@ -200,25 +247,40 @@ export default function PurchaseHistoryPage({
                                                                 Miejsca
                                                             </p>
                                                             <p className="text-sm text-muted-foreground">
-                                                                {booking.seats.length} biletów w tym zamówieniu
+                                                                {
+                                                                    booking
+                                                                        .seats
+                                                                        .length
+                                                                }{' '}
+                                                                biletów w tym
+                                                                zamówieniu
                                                             </p>
                                                         </div>
                                                     </div>
 
                                                     <div className="grid gap-3 md:grid-cols-2 xl:grid-cols-3">
-                                                        {booking.seats.map((seat) => (
-                                                            <div
-                                                                key={seat.id}
-                                                                className="flex items-center justify-between rounded-2xl border border-border bg-background px-4 py-3"
-                                                            >
-                                                                <p className="font-semibold">
-                                                                    Miejsce {seat.label}
-                                                                </p>
-                                                                <p className="text-sm font-semibold text-muted-foreground">
-                                                                    {formatPrice(seat.price)}
-                                                                </p>
-                                                            </div>
-                                                        ))}
+                                                        {booking.seats.map(
+                                                            (seat) => (
+                                                                <div
+                                                                    key={
+                                                                        seat.id
+                                                                    }
+                                                                    className="flex items-center justify-between rounded-2xl border border-border bg-background px-4 py-3"
+                                                                >
+                                                                    <p className="font-semibold">
+                                                                        Miejsce{' '}
+                                                                        {
+                                                                            seat.label
+                                                                        }
+                                                                    </p>
+                                                                    <p className="text-sm font-semibold text-muted-foreground">
+                                                                        {formatPrice(
+                                                                            seat.price,
+                                                                        )}
+                                                                    </p>
+                                                                </div>
+                                                            ),
+                                                        )}
                                                     </div>
                                                 </div>
                                             </AccordionContent>
@@ -232,8 +294,8 @@ export default function PurchaseHistoryPage({
                                     Nie masz jeszcze opłaconych zakupów.
                                 </p>
                                 <p className="mt-2 text-sm leading-6 text-muted-foreground">
-                                    Gdy sfinalizujesz pierwszą rezerwację, pojawi
-                                    się tutaj wraz z jej szczegółami.
+                                    Gdy sfinalizujesz pierwszą rezerwację,
+                                    pojawi się tutaj wraz z jej szczegółami.
                                 </p>
                                 <Link
                                     href={home()}

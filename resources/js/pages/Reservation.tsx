@@ -13,7 +13,7 @@ import client from '@/lib/client';
 import screeningsRoutes from '@/routes/screenings';
 import type { HallRow, Seat, SharedPageProps } from '@/types';
 
-interface ReservationPageProps extends SharedPageProps{
+interface ReservationPageProps extends SharedPageProps {
     seats: HallRow[];
     screening: {
         id: string;

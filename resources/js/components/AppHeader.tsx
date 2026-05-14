@@ -38,14 +38,14 @@ export default function AppHeader({ auth }: AppHeaderProps) {
                                 asChild
                                 variant="ghost"
                                 size="lg"
-                                className="hidden rounded-xl sm:inline-flex h-10"
+                                className="hidden h-10 rounded-xl sm:inline-flex"
                             >
                                 <Link href={login()}>Zaloguj się</Link>
                             </Button>
                             <Button
                                 asChild
                                 size="lg"
-                                className="rounded-xl shadow-lg shadow-primary/20 h-10"
+                                className="h-10 rounded-xl shadow-lg shadow-primary/20"
                             >
                                 <Link href={register()}>Rejestracja</Link>
                             </Button>

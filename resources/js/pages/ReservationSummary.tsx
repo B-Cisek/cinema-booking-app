@@ -9,20 +9,21 @@ import {
     Ticket,
 } from 'lucide-react';
 import type { FormEvent } from 'react';
+import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import {
     Field,
     FieldContent,
-    FieldDescription, FieldError,
+    FieldDescription,
+    FieldError,
     FieldLabel,
     FieldTitle,
 } from '@/components/ui/field';
+import { Input } from '@/components/ui/input';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import screeningsRoutes from '@/routes/screenings';
 import type { SharedPageProps } from '@/types';
-import { Badge } from '@/components/ui/badge';
-import { Input } from '@/components/ui/input';
 
 interface ReservationSummaryPageProps extends SharedPageProps {
     screening: {

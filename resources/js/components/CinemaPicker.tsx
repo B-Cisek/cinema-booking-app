@@ -41,7 +41,7 @@ export default function CinemaPicker() {
             <button
                 type="button"
                 onClick={() => setIsCinemaModalOpen(true)}
-                className="cursor-pointer flex h-10 min-w-0 items-center gap-2 rounded-xl border border-border bg-card px-2.5 text-left transition hover:border-primary/50 hover:bg-primary/5 sm:px-3"
+                className="flex h-10 min-w-0 cursor-pointer items-center gap-2 rounded-xl border border-border bg-card px-2.5 text-left transition hover:border-primary/50 hover:bg-primary/5 sm:px-3"
             >
                 <div className="flex size-6 shrink-0 items-center justify-center rounded-lg bg-primary/10 text-primary">
                     <MapPin className="size-4" />

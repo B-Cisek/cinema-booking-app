@@ -24,7 +24,7 @@ export default function HeaderUser({ user }: HeaderUserProps) {
                 <Button
                     variant="default"
                     size="icon-lg"
-                    className="rounded-xl border-border/80 bg-primary/10 text-primary hover:bg-accent/50 size-10 cursor-pointer"
+                    className="size-10 cursor-pointer rounded-xl border-border/80 bg-primary/10 text-primary hover:bg-accent/50"
                 >
                     <UserRound className="size-6" />
                 </Button>
@@ -32,7 +32,7 @@ export default function HeaderUser({ user }: HeaderUserProps) {
             <DropdownMenuContent align="end">
                 <DropdownMenuLabel className="space-y-1 normal-case">
                     <span className="block truncate text-sm font-medium text-foreground">
-                        { user.email }
+                        {user.email}
                     </span>
                 </DropdownMenuLabel>
                 <DropdownMenuSeparator />
@@ -45,7 +45,10 @@ export default function HeaderUser({ user }: HeaderUserProps) {
                     </DropdownMenuItem>
                 </DropdownMenuGroup>
                 <DropdownMenuSeparator />
-                <DropdownMenuItem variant="destructive" onClick={() => router.post(logout())}>
+                <DropdownMenuItem
+                    variant="destructive"
+                    onClick={() => router.post(logout())}
+                >
                     <LogOutIcon />
                     Wyloguj
                 </DropdownMenuItem>

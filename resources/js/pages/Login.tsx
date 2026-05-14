@@ -160,7 +160,7 @@ export default function Login() {
                                 <Button
                                     type="submit"
                                     size="lg"
-                                    className="w-full rounded-xl shadow-lg shadow-primary/20 cursor-pointer py-4"
+                                    className="w-full cursor-pointer rounded-xl py-4 shadow-lg shadow-primary/20"
                                     disabled={form.processing}
                                 >
                                     {form.processing

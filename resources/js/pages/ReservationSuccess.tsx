@@ -5,7 +5,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { home } from '@/routes';
 import type { SharedPageProps } from '@/types';
 
-interface ReservationSuccessPageProps extends SharedPageProps{
+interface ReservationSuccessPageProps extends SharedPageProps {
     booking: {
         id: string;
         number: string;
@@ -68,7 +68,8 @@ export default function ReservationSuccessPage({
                                         {screening.movie.title}
                                     </h1>
                                     <p className="text-sm leading-6 text-muted-foreground">
-                                        Numer rezerwacji: <strong>{booking.number}</strong>.
+                                        Numer rezerwacji:{' '}
+                                        <strong>{booking.number}</strong>.
                                         Potwierdzenie zostało przygotowane dla
                                         adresu <strong>{booking.email}</strong>.
                                     </p>

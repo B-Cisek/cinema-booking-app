@@ -38,31 +38,31 @@ export default function ReservationPaymentPage({
     const [secondsRemaining, setSecondsRemaining] = useState(countdownDuration);
     const hasSubmittedRef = useRef(false);
 
-    const handlePayment = (): void => {
-        if (hasSubmittedRef.current) {
-            return;
-        }
-
-        hasSubmittedRef.current = true;
-
-        router.post(
-            screeningsRoutes.completePayment.url([
-                screening.id,
-                booking.id,
-                paymentMethod.code,
-            ]),
-        );
-    };
-
     useEffect(() => {
+        const submitPayment = (): void => {
+            if (hasSubmittedRef.current) {
+                return;
+            }
+
+            hasSubmittedRef.current = true;
+
+            router.post(
+                screeningsRoutes.completePayment.url([
+                    screening.id,
+                    booking.id,
+                    paymentMethod.code,
+                ]),
+            );
+        };
+
         if (isAlreadyPaid) {
-            handlePayment();
+            submitPayment();
 
             return;
         }
 
         const timeoutId = window.setTimeout(() => {
-            handlePayment();
+            submitPayment();
         }, countdownDuration * 1000);
 
         const intervalId = window.setInterval(() => {
@@ -81,7 +81,13 @@ export default function ReservationPaymentPage({
             window.clearTimeout(timeoutId);
             window.clearInterval(intervalId);
         };
-    }, [isAlreadyPaid]);
+    }, [
+        booking.id,
+        countdownDuration,
+        isAlreadyPaid,
+        paymentMethod.code,
+        screening.id,
+    ]);
 
     return (
         <>
@@ -105,7 +111,7 @@ export default function ReservationPaymentPage({
                     </p>
                     <div className="mt-12 flex h-40 w-40 items-center justify-center rounded-full border border-primary/15 bg-primary/10 text-primary shadow-lg shadow-primary/10 sm:h-48 sm:w-48">
                         <div>
-                            <p className="text-6xl font-semibold leading-none sm:text-7xl">
+                            <p className="text-6xl leading-none font-semibold sm:text-7xl">
                                 {secondsRemaining}
                             </p>
                             <p className="mt-3 text-xs font-bold tracking-[0.24em] uppercase">
@@ -114,8 +120,9 @@ export default function ReservationPaymentPage({
                         </div>
                     </div>
                     <p className="mt-10 text-sm leading-7 text-muted-foreground sm:text-base">
-                        Rezerwacja {booking.number} dla filmu {screening.movie.title}.
-                        Za chwilę nastąpi przekierowanie na potwierdzenie płatności.
+                        Rezerwacja {booking.number} dla filmu{' '}
+                        {screening.movie.title}. Za chwilę nastąpi
+                        przekierowanie na potwierdzenie płatności.
                     </p>
                     <p className="mt-3 text-sm font-medium text-foreground sm:text-base">
                         Kwota: {formatPrice(booking.total)}

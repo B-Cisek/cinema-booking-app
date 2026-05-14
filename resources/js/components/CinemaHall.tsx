@@ -40,7 +40,8 @@ export default function CinemaHall({
                     </div>
                 </div>
                 <p className="text-sm text-muted-foreground">
-                    Kliknij miejsce, aby je zaznaczyć. Ponowne kliknięcie odznacza wybór.
+                    Kliknij miejsce, aby je zaznaczyć. Ponowne kliknięcie
+                    odznacza wybór.
                 </p>
             </CardHeader>
             <CardContent className="space-y-6 px-5 py-4 sm:px-6 sm:py-6">
@@ -80,7 +81,8 @@ export default function CinemaHall({
                                         const isUnavailable =
                                             !seat.isActive || seat.isBooked;
                                         const isSelected =
-                                            !isUnavailable && selectedSeatIdsSet.has(seat.id);
+                                            !isUnavailable &&
+                                            selectedSeatIdsSet.has(seat.id);
                                         const seatClasses = isUnavailable
                                             ? ''
                                             : isSelected

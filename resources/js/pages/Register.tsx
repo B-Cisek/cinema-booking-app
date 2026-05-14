@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/card';
 import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
-import { home, login } from '@/routes';
+import { login } from '@/routes';
 import registerRoutes from '@/routes/register';
 
 interface RegisterForm {
