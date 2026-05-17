@@ -3,6 +3,7 @@
 declare(strict_types=1);
 
 use App\Models\Booking;
+use App\Models\Screening;
 use App\Models\Seat;
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -19,10 +20,11 @@ return new class extends Migration
             $table->uuid('id')->primary();
             $table->foreignIdFor(Booking::class, 'booking_id')->constrained()->cascadeOnDelete();
             $table->foreignIdFor(Seat::class, 'seat_id')->constrained()->cascadeOnDelete();
+            $table->foreignIdFor(Screening::class, 'screening_id')->constrained()->cascadeOnDelete();
             $table->integer('price');
             $table->timestamps();
 
-            $table->unique(['booking_id', 'seat_id']);
+            $table->unique(['screening_id', 'seat_id']);
         });
     }
 

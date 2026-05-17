@@ -140,10 +140,7 @@ export default function Login() {
                                     ) : null}
                                 </Field>
 
-                                <Label
-                                    htmlFor="remember"
-                                    className="flex items-center gap-3 text-sm text-muted-foreground"
-                                >
+                                <Field orientation="horizontal">
                                     <Checkbox
                                         id="remember"
                                         checked={form.data.remember}
@@ -154,8 +151,14 @@ export default function Login() {
                                             )
                                         }
                                     />
-                                    Zapamiętaj mnie na tym urządzeniu
-                                </Label>
+                                    <FieldLabel
+                                        htmlFor="remember"
+                                        className="font-normal"
+                                    >
+                                        Zapamiętaj mnie
+                                    </FieldLabel>
+                                </Field>
+
 
                                 <Button
                                     type="submit"
