@@ -199,10 +199,11 @@ export default function ReservationSummaryPage({
                                         <FieldLabel
                                             key={paymentMethod.code}
                                             htmlFor={paymentMethod.code}
+                                            className="cursor-pointer"
                                         >
                                             <Field orientation="horizontal">
                                                 <FieldContent>
-                                                    <FieldTitle>
+                                                    <FieldTitle className="text-sm">
                                                         {paymentMethod.label}
                                                     </FieldTitle>
                                                     <FieldDescription>
@@ -332,7 +333,7 @@ export default function ReservationSummaryPage({
                                             />
                                             {form.errors.email && (
                                                 <FieldError>
-                                                    {form.errors.email}
+                                                    Pole musi być prawidłowym adresem e-mail.
                                                 </FieldError>
                                             )}
                                         </Field>
@@ -357,7 +358,7 @@ export default function ReservationSummaryPage({
                             <Button
                                 type="submit"
                                 size="lg"
-                                className="h-12 w-full rounded-xl text-base"
+                                className="h-12 w-full cursor-pointer rounded-xl text-base"
                                 disabled={form.processing}
                             >
                                 {form.processing

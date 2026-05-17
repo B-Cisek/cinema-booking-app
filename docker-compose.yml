@@ -47,6 +47,15 @@ services:
     networks:
       - cinema
 
+  mailpit:
+    container_name: cinema-mailpit
+    image: axllent/mailpit:latest
+    ports:
+      - "8025:8025"  # Web UI
+      - "1025:1025"  # SMTP
+    networks:
+      - cinema
+
 volumes:
   postgres_data:
   redis_data:
