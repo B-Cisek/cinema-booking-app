@@ -18,10 +18,8 @@ class ScreeningReservationSummaryController extends Controller
         private readonly ReservationSummaryPageData $data,
     ) {}
 
-    public function __invoke(
-        ScreeningReservationSummaryRequest $request,
-        Screening $screening,
-    ): Response {
+    public function __invoke(ScreeningReservationSummaryRequest $request, Screening $screening): Response
+    {
         $this->guestTokenHandler->setup($request);
 
         return Inertia::render('ReservationSummary', $this->data->build(

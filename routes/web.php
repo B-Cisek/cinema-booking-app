@@ -2,10 +2,10 @@
 
 declare(strict_types=1);
 
-use App\Http\Controllers\CompleteScreeningReservationPaymentController;
 use App\Http\Controllers\HomeController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\LogoutController;
+use App\Http\Controllers\PayuController;
 use App\Http\Controllers\PurchaseHistoryController;
 use App\Http\Controllers\RegisterController;
 use App\Http\Controllers\ScreeningReservationController;
@@ -43,11 +43,8 @@ Route::middleware(EnsureCinemaSelected::class)->group(function (): void {
     Route::get('/screenings/{screening}/reservation/summary', ScreeningReservationSummaryController::class)
         ->name('screenings.reservation-summary');
 
-    Route::get('/screenings/{screening}/reservation/payment/{booking}/{paymentMethod}', ScreeningReservationPaymentController::class)
+    Route::get('/screenings/{screening}/reservation/payment/{booking}', ScreeningReservationPaymentController::class)
         ->name('screenings.reservation-payment');
-
-    Route::post('/screenings/{screening}/reservation/payment/{booking}/{paymentMethod}', CompleteScreeningReservationPaymentController::class)
-        ->name('screenings.complete-payment');
 
     Route::post('/screenings/seat-hold', SeatHoldController::class)
         ->name('screenings.seat-hold');
@@ -61,3 +58,5 @@ Route::get('/screenings/{screening}/reservation/success/{booking}', ScreeningRes
 
 Route::post('/cinemas/select', SelectCinemaController::class)
     ->name('cinemas.select');
+
+Route::post('/payu/notif', PayuController::class)->name('payu.notify');

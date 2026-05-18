@@ -100,6 +100,7 @@ readonly class CreateReservationHandler
                 $selectedSeats->map(
                     fn (Seat $seat): array => [
                         'seat_id' => $seat->getKey(),
+                        'screening_id' => $screeningId,
                         'price' => $this->seatPriceCalculator->forSeat($seat),
                     ],
                 )->all(),

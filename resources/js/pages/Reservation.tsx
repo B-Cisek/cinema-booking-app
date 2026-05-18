@@ -343,7 +343,7 @@ export default function ReservationPage({
                             </Badge>
                             <Button
                                 size="lg"
-                                className="min-w-40 rounded-full px-6 cursor-pointer"
+                                className="min-w-40 cursor-pointer rounded-full px-6"
                                 onClick={() =>
                                     router.get(
                                         screeningsRoutes.reservationSummary.url(

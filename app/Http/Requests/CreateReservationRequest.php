@@ -4,7 +4,6 @@ declare(strict_types=1);
 
 namespace App\Http\Requests;
 
-use App\Enums\PaymentMethod;
 use Illuminate\Contracts\Validation\ValidationRule;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
@@ -26,7 +25,6 @@ class CreateReservationRequest extends FormRequest
                 Rule::requiredIf($this->user() === null),
                 Rule::email()->rfcCompliant(strict: true),
             ],
-            'paymentMethod' => ['required', Rule::enum(PaymentMethod::class)],
             'seatIds' => ['required', 'array', 'min:1'],
             'seatIds.*' => ['required', 'uuid:7', 'distinct'],
         ];

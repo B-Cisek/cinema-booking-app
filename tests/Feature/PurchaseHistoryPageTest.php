@@ -59,7 +59,6 @@ class PurchaseHistoryPageTest extends TestCase
                 'booking_number' => 'BK00000002',
                 'created_at' => CarbonImmutable::parse('2026-05-02 10:00:00'),
                 'title' => 'Matrix',
-                'payment_method' => PaymentMethod::PRZELEWY24,
             ],
         );
 
@@ -206,12 +205,14 @@ class PurchaseHistoryPageTest extends TestCase
 
         BookedSeat::query()->create([
             'booking_id' => $booking->getKey(),
+            'screening_id' => $screening->getKey(),
             'seat_id' => $firstSeat->getKey(),
             'price' => 2200,
         ]);
 
         BookedSeat::query()->create([
             'booking_id' => $booking->getKey(),
+            'screening_id' => $screening->getKey(),
             'seat_id' => $secondSeat->getKey(),
             'price' => 3400,
         ]);

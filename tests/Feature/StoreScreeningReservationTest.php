@@ -65,7 +65,6 @@ class StoreScreeningReservationTest extends TestCase
             ->withCookie('guest-token', $guestToken)
             ->post(route('screenings.book', $screening), [
                 'email' => 'jan@example.com',
-                'paymentMethod' => 'payu',
                 'seatIds' => [$firstSeat->getKey(), $secondSeat->getKey()],
             ]);
 
@@ -74,7 +73,6 @@ class StoreScreeningReservationTest extends TestCase
         $response->assertRedirect(route('screenings.reservation-payment', [
             'screening' => $screening,
             'booking' => $booking,
-            'paymentMethod' => 'payu',
         ]));
 
         $this->assertDatabaseHas('bookings', [
@@ -83,6 +81,7 @@ class StoreScreeningReservationTest extends TestCase
             'status' => BookingStatus::PENDING->value,
             'user_id' => null,
             'guest_id' => $guestToken,
+            'payment_method' => PaymentMethod::PAY_U->value,
         ]);
         $this->assertDatabaseCount('booked_seats', 2);
         $this->assertDatabaseHas('booked_seats', [
@@ -131,7 +130,6 @@ class StoreScreeningReservationTest extends TestCase
             ])
             ->withCookie('guest-token', $guestToken)
             ->post(route('screenings.book', $screening), [
-                'paymentMethod' => 'payu',
                 'seatIds' => [$firstSeat->getKey()],
             ]);
 
@@ -140,7 +138,6 @@ class StoreScreeningReservationTest extends TestCase
         $response->assertRedirect(route('screenings.reservation-payment', [
             'screening' => $screening,
             'booking' => $booking,
-            'paymentMethod' => 'payu',
         ]));
 
         $this->assertDatabaseHas('bookings', [
@@ -198,7 +195,6 @@ class StoreScreeningReservationTest extends TestCase
             ->withCookie('guest-token', $guestToken)
             ->post(route('screenings.book', $screening), [
                 'email' => 'jan@example.com',
-                'paymentMethod' => 'payu',
                 'seatIds' => [$firstSeat->getKey()],
             ]);
 
@@ -209,7 +205,6 @@ class StoreScreeningReservationTest extends TestCase
         $response->assertRedirect(route('screenings.reservation-payment', [
             'screening' => $screening,
             'booking' => $booking,
-            'paymentMethod' => 'payu',
         ]));
 
         $this->assertSame('BKUNIQ2', $booking->booking_number);
@@ -240,7 +235,6 @@ class StoreScreeningReservationTest extends TestCase
             ->withCookie('guest-token', $guestToken)
             ->post(route('screenings.book', $screening), [
                 'email' => 'jan@example.com',
-                'paymentMethod' => 'payu',
                 'seatIds' => [$firstSeat->getKey()],
             ]);
 
@@ -257,9 +251,10 @@ class StoreScreeningReservationTest extends TestCase
     }
 
     #[Test]
-    public function it_confirms_the_booking_after_the_test_payment(): void
+    public function it_confirms_the_booking_after_a_completed_payu_notification(): void
     {
         config()->set('seat.prices.standard', 2100);
+        config()->set('services.payu.second_key', 'second-key');
         Mail::fake();
         $guestToken = Uuid::uuid7()->toString();
         [$cinema, $screening, $firstSeat] = $this->prepareScreening();
@@ -285,22 +280,39 @@ class StoreScreeningReservationTest extends TestCase
             ->withCookie('guest-token', $guestToken)
             ->post(route('screenings.book', $screening), [
                 'email' => 'jan@example.com',
-                'paymentMethod' => 'cart',
                 'seatIds' => [$firstSeat->getKey()],
             ]);
 
         $booking = Booking::query()->firstOrFail();
+        $content = (string) json_encode([
+            'order' => [
+                'extOrderId' => $booking->getKey(),
+                'status' => 'COMPLETED',
+            ],
+        ]);
 
-        $response = $this->post(route('screenings.complete-payment', [
-            'screening' => $screening,
-            'booking' => $booking,
-            'paymentMethod' => 'cart',
-        ]));
+        $response = $this->call(
+            'POST',
+            route('payu.notify'),
+            [],
+            [],
+            [],
+            [
+                'CONTENT_TYPE' => 'application/json',
+                'HTTP_ACCEPT' => 'application/json',
+                'HTTP_OPENPAYU_SIGNATURE' => sprintf(
+                    'sender=checkout;signature=%s;algorithm=MD5;content=DOCUMENT',
+                    md5($content.'second-key'),
+                ),
+            ],
+            $content,
+        );
 
-        $response->assertRedirect(route('screenings.reservation-success', [
-            'screening' => $screening,
-            'booking' => $booking,
-        ]));
+        $response
+            ->assertOk()
+            ->assertJson([
+                'message' => 'OK',
+            ]);
 
         $this->assertDatabaseHas('bookings', [
             'id' => $booking->getKey(),

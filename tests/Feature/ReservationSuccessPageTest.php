@@ -43,6 +43,10 @@ class ReservationSuccessPageTest extends TestCase
                 ->where('booking.id', $booking->getKey())
                 ->where('booking.number', $booking->booking_number)
                 ->where('booking.email', 'jan@example.com')
+                ->where('booking.status.code', 'confirmed')
+                ->where('booking.status.label', 'Opłacona')
+                ->where('booking.status.is_paid', true)
+                ->where('booking.status.is_pending', false)
                 ->where('booking.total', 5600)
                 ->has('booking.seats', 2)
                 ->where('booking.seats.0.price', 2200)
@@ -52,10 +56,58 @@ class ReservationSuccessPageTest extends TestCase
             );
     }
 
+    #[Test]
+    public function it_shows_the_reservation_success_page_while_payment_is_pending(): void
+    {
+        [$screening, $booking] = $this->prepareBooking([
+            'status' => BookingStatus::PENDING,
+        ]);
+
+        $response = $this->get(route('screenings.reservation-success', [
+            'screening' => $screening,
+            'booking' => $booking,
+        ]));
+
+        $response
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('ReservationSuccess')
+                ->where('booking.id', $booking->getKey())
+                ->where('booking.status.code', 'pending')
+                ->where('booking.status.label', 'Oczekuje')
+                ->where('booking.status.is_paid', false)
+                ->where('booking.status.is_pending', true)
+            );
+    }
+
+    #[Test]
+    public function it_shows_the_reservation_success_page_when_payment_is_cancelled(): void
+    {
+        [$screening, $booking] = $this->prepareBooking([
+            'status' => BookingStatus::CANCELLED,
+        ]);
+
+        $response = $this->get(route('screenings.reservation-success', [
+            'screening' => $screening,
+            'booking' => $booking,
+        ]));
+
+        $response
+            ->assertOk()
+            ->assertInertia(fn (Assert $page) => $page
+                ->component('ReservationSuccess')
+                ->where('booking.id', $booking->getKey())
+                ->where('booking.status.code', 'cancelled')
+                ->where('booking.status.label', 'Anulowana')
+                ->where('booking.status.is_paid', false)
+                ->where('booking.status.is_pending', false)
+            );
+    }
+
     /**
      * @return array{0: Screening, 1: Booking}
      */
-    private function prepareBooking(): array
+    private function prepareBooking(array $overrides = []): array
     {
         $cinema = Cinema::factory()->create([
             'city' => 'Warszawa',
@@ -89,7 +141,7 @@ class ReservationSuccessPageTest extends TestCase
         $booking = Booking::query()->create([
             'screening_id' => $screening->getKey(),
             'booking_number' => 'ABC1234567',
-            'status' => BookingStatus::CONFIRMED,
+            'status' => $overrides['status'] ?? BookingStatus::CONFIRMED,
             'customer_email' => 'jan@example.com',
             'payment_method' => PaymentMethod::PAY_U,
         ]);
@@ -116,12 +168,14 @@ class ReservationSuccessPageTest extends TestCase
 
         BookedSeat::query()->create([
             'booking_id' => $booking->getKey(),
+            'screening_id' => $screening->getKey(),
             'seat_id' => $firstSeat->getKey(),
             'price' => 2200,
         ]);
 
         BookedSeat::query()->create([
             'booking_id' => $booking->getKey(),
+            'screening_id' => $screening->getKey(),
             'seat_id' => $secondSeat->getKey(),
             'price' => 3400,
         ]);

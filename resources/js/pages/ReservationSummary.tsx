@@ -3,7 +3,6 @@ import {
     CalendarDays,
     CircleDollarSign,
     Clock3,
-    CreditCard,
     Mail,
     MapPin,
     Ticket,
@@ -12,16 +11,8 @@ import type { FormEvent } from 'react';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import {
-    Field,
-    FieldContent,
-    FieldDescription,
-    FieldError,
-    FieldLabel,
-    FieldTitle,
-} from '@/components/ui/field';
+import { Field, FieldError, FieldLabel } from '@/components/ui/field';
 import { Input } from '@/components/ui/input';
-import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import screeningsRoutes from '@/routes/screenings';
 import type { SharedPageProps } from '@/types';
 
@@ -54,11 +45,6 @@ interface ReservationSummaryPageProps extends SharedPageProps {
         price: number;
     }>;
     totalPrice: number;
-    paymentMethods: Array<{
-        code: string;
-        label: string;
-        description: string;
-    }>;
 }
 
 const seatTypeLabels: Record<string, string> = {
@@ -73,12 +59,10 @@ export default function ReservationSummaryPage({
     screening,
     selectedSeats,
     totalPrice,
-    paymentMethods,
 }: ReservationSummaryPageProps) {
     const loggedInUserEmail = auth.user?.email ?? null;
     const form = useForm({
         email: loggedInUserEmail ?? '',
-        paymentMethod: paymentMethods[0]?.code ?? '',
         seatIds: selectedSeats.map((seat) => seat.id),
     });
 
@@ -108,10 +92,10 @@ export default function ReservationSummaryPage({
                                         Podsumowanie rezerwacji
                                     </h1>
                                     <p className="text-sm leading-6 text-muted-foreground">
-                                        Sprawdź wybrane miejsca i wybierz metodę
+                                        Sprawdź wybrane miejsca i przejdź do
                                         płatności.{' '}
                                         {loggedInUserEmail
-                                            ? 'Po zaksięgowaniu testowej płatności wyślemy bilet na adres przypisany do Twojego konta.'
+                                            ? 'Po zaksięgowaniu płatności wyślemy bilet na adres przypisany do Twojego konta.'
                                             : 'Podaj adres e-mail, na który wyślemy potwierdzenie kolejnego kroku rezerwacji.'}
                                     </p>
                                 </div>
@@ -166,70 +150,7 @@ export default function ReservationSummaryPage({
                     </CardContent>
                 </Card>
 
-                <form
-                    className="grid gap-6 lg:grid-cols-[0.95fr_1.05fr]"
-                    onSubmit={handleSubmit}
-                >
-                    <div className="space-y-6">
-                        <Card className="border-border/70 shadow-lg shadow-primary/5">
-                            <CardHeader className="gap-3">
-                                <div className="flex items-center gap-3">
-                                    <div className="flex size-11 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                                        <CreditCard className="size-5" />
-                                    </div>
-                                    <div>
-                                        <p className="text-xs font-semibold tracking-[0.22em] text-muted-foreground uppercase">
-                                            Metoda płatności
-                                        </p>
-                                        <CardTitle className="text-2xl tracking-tight">
-                                            Wybierz bramkę
-                                        </CardTitle>
-                                    </div>
-                                </div>
-                            </CardHeader>
-                            <CardContent className="space-y-3 px-5">
-                                <RadioGroup
-                                    value={form.data.paymentMethod}
-                                    onValueChange={(value) =>
-                                        form.setData('paymentMethod', value)
-                                    }
-                                    className="w-full"
-                                >
-                                    {paymentMethods.map((paymentMethod) => (
-                                        <FieldLabel
-                                            key={paymentMethod.code}
-                                            htmlFor={paymentMethod.code}
-                                            className="cursor-pointer"
-                                        >
-                                            <Field orientation="horizontal">
-                                                <FieldContent>
-                                                    <FieldTitle className="text-sm">
-                                                        {paymentMethod.label}
-                                                    </FieldTitle>
-                                                    <FieldDescription>
-                                                        {
-                                                            paymentMethod.description
-                                                        }
-                                                    </FieldDescription>
-                                                </FieldContent>
-                                                <RadioGroupItem
-                                                    value={paymentMethod.code}
-                                                    id={paymentMethod.code}
-                                                />
-                                            </Field>
-                                        </FieldLabel>
-                                    ))}
-                                </RadioGroup>
-
-                                {form.errors.paymentMethod && (
-                                    <p className="text-sm text-destructive">
-                                        {form.errors.paymentMethod}
-                                    </p>
-                                )}
-                            </CardContent>
-                        </Card>
-                    </div>
-
+                <form className="w-full" onSubmit={handleSubmit}>
                     <Card className="border-border/70 shadow-lg shadow-primary/5">
                         <CardHeader className="gap-3">
                             <div className="flex items-center gap-3">
@@ -246,125 +167,138 @@ export default function ReservationSummaryPage({
                                 </div>
                             </div>
                         </CardHeader>
-                        <CardContent className="space-y-4">
-                            <div className="space-y-3">
-                                {selectedSeats.map((seat) => (
-                                    <div
-                                        key={seat.id}
-                                        className="rounded-xl border border-border bg-muted/20 px-4 py-4"
-                                    >
-                                        <div className="flex items-start justify-between gap-4">
-                                            <div className="min-w-0 space-y-1">
-                                                <p className="font-semibold">
-                                                    Bilet: miejsce {seat.label}
+                        <CardContent>
+                            <div className="grid gap-5 lg:grid-cols-[minmax(0,1fr)_minmax(20rem,0.45fr)]">
+                                <div className="space-y-3">
+                                    {selectedSeats.map((seat) => (
+                                        <div
+                                            key={seat.id}
+                                            className="rounded-xl border border-border bg-muted/20 px-4 py-4"
+                                        >
+                                            <div className="flex items-start justify-between gap-4">
+                                                <div className="min-w-0 space-y-1">
+                                                    <p className="font-semibold">
+                                                        Bilet: miejsce{' '}
+                                                        {seat.label}
+                                                    </p>
+                                                </div>
+                                                <p className="shrink-0 font-semibold">
+                                                    {formatPrice(seat.price)}
                                                 </p>
                                             </div>
-                                            <p className="shrink-0 font-semibold">
-                                                {formatPrice(seat.price)}
-                                            </p>
-                                        </div>
 
-                                        <div className="mt-3 flex items-center gap-2 text-sm text-primary">
-                                            <Badge className="font-bold">
-                                                Rząd {seat.row}
-                                            </Badge>
-                                            <Badge className="font-bold">
-                                                {seatTypeLabels[
-                                                    seat.seatType
-                                                ] ?? seat.seatType}
-                                            </Badge>
+                                            <div className="mt-3 flex items-center gap-2 text-sm text-primary">
+                                                <Badge className="font-bold">
+                                                    Rząd {seat.row}
+                                                </Badge>
+                                                <Badge className="font-bold">
+                                                    {seatTypeLabels[
+                                                        seat.seatType
+                                                    ] ?? seat.seatType}
+                                                </Badge>
+                                            </div>
+                                        </div>
+                                    ))}
+                                </div>
+
+                                <div className="space-y-4">
+                                    <div className="rounded-xl border border-primary/15 bg-primary/5 px-3 py-3">
+                                        <div className="flex items-center justify-between gap-4">
+                                            <div className="flex items-center gap-3">
+                                                <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                                                    <CircleDollarSign className="size-5" />
+                                                </div>
+                                                <div>
+                                                    <p className="text-sm text-muted-foreground">
+                                                        Suma do zapłaty
+                                                    </p>
+                                                    <p className="text-2xl font-semibold tracking-tight">
+                                                        {formatPrice(
+                                                            totalPrice,
+                                                        )}
+                                                    </p>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                ))}
-                            </div>
 
-                            <div className="rounded-xl border border-primary/15 bg-primary/5 px-3 py-3">
-                                <div className="flex items-center justify-between gap-4">
-                                    <div className="flex items-center gap-3">
-                                        <div className="flex size-10 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                                            <CircleDollarSign className="size-5" />
+                                    {!loggedInUserEmail && (
+                                        <div className="space-y-4 rounded-xl border border-border bg-muted/20 px-3 py-3">
+                                            <div className="flex items-start gap-3">
+                                                <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
+                                                    <Mail className="size-5" />
+                                                </div>
+                                                <div className="min-w-0 space-y-1">
+                                                    <p className="text-sm font-semibold">
+                                                        Adres e-mail
+                                                    </p>
+                                                    <p className="text-sm leading-6 text-muted-foreground">
+                                                        Na ten adres wyślemy
+                                                        bilet.
+                                                    </p>
+                                                </div>
+                                            </div>
+
+                                            <div className="space-y-2">
+                                                <Field>
+                                                    <FieldLabel htmlFor="email">
+                                                        Email
+                                                    </FieldLabel>
+                                                    <Input
+                                                        id="email"
+                                                        type="email"
+                                                        autoComplete="email"
+                                                        placeholder="np. jan.kowalski@example.com"
+                                                        value={form.data.email}
+                                                        onChange={(event) =>
+                                                            form.setData(
+                                                                'email',
+                                                                event.target
+                                                                    .value,
+                                                            )
+                                                        }
+                                                        required
+                                                    />
+                                                    {form.errors.email && (
+                                                        <FieldError>
+                                                            Pole musi być
+                                                            prawidłowym adresem
+                                                            e-mail.
+                                                        </FieldError>
+                                                    )}
+                                                </Field>
+                                            </div>
                                         </div>
-                                        <div>
-                                            <p className="text-sm text-muted-foreground">
-                                                Suma do zapłaty
-                                            </p>
-                                            <p className="text-2xl font-semibold tracking-tight">
-                                                {formatPrice(totalPrice)}
-                                            </p>
-                                        </div>
+                                    )}
+
+                                    <div className="rounded-xl border border-amber-500/25 bg-amber-500/10 px-4 py-4">
+                                        <p className="text-sm leading-6 text-amber-900">
+                                            Klikając przycisk poniżej,
+                                            przechodzisz do testowej bramki
+                                            płatności. To środowisko służy
+                                            wyłącznie do sprawdzenia procesu
+                                            rezerwacji.
+                                        </p>
                                     </div>
+
+                                    {form.errors.seatIds && (
+                                        <p className="text-sm text-destructive">
+                                            {form.errors.seatIds}
+                                        </p>
+                                    )}
+
+                                    <Button
+                                        type="submit"
+                                        size="lg"
+                                        className="h-12 w-full cursor-pointer rounded-xl text-base"
+                                        disabled={form.processing}
+                                    >
+                                        {form.processing
+                                            ? 'Przekierowanie...'
+                                            : 'Kupuję i płacę'}
+                                    </Button>
                                 </div>
                             </div>
-
-                            {!loggedInUserEmail && (
-                                <div className="space-y-4 rounded-xl border border-border bg-muted/20 px-3 py-3">
-                                    <div className="flex items-start gap-3">
-                                        <div className="flex size-10 shrink-0 items-center justify-center rounded-xl bg-primary/10 text-primary">
-                                            <Mail className="size-5" />
-                                        </div>
-                                        <div className="min-w-0 space-y-1">
-                                            <p className="text-sm font-semibold">
-                                                Adres e-mail
-                                            </p>
-                                            <p className="text-sm leading-6 text-muted-foreground">
-                                                Na ten adres wyślemy bilet.
-                                            </p>
-                                        </div>
-                                    </div>
-
-                                    <div className="space-y-2">
-                                        <Field>
-                                            <FieldLabel htmlFor="email">
-                                                Email
-                                            </FieldLabel>
-                                            <Input
-                                                id="email"
-                                                type="email"
-                                                autoComplete="email"
-                                                placeholder="np. jan.kowalski@example.com"
-                                                value={form.data.email}
-                                                onChange={(event) =>
-                                                    form.setData(
-                                                        'email',
-                                                        event.target.value,
-                                                    )
-                                                }
-                                                required
-                                            />
-                                            {form.errors.email && (
-                                                <FieldError>
-                                                    Pole musi być prawidłowym adresem e-mail.
-                                                </FieldError>
-                                            )}
-                                        </Field>
-                                    </div>
-                                </div>
-                            )}
-
-                            <div className="rounded-xl border border-amber-500/25 bg-amber-500/10 px-4 py-4">
-                                <p className="text-sm leading-6 text-amber-900">
-                                    Klikając przycisk poniżej, kupujesz z
-                                    obowiązkiem zapłaty i przechodzisz do
-                                    testowej strony wybranej bramki.
-                                </p>
-                            </div>
-
-                            {form.errors.seatIds && (
-                                <p className="text-sm text-destructive">
-                                    {form.errors.seatIds}
-                                </p>
-                            )}
-
-                            <Button
-                                type="submit"
-                                size="lg"
-                                className="h-12 w-full cursor-pointer rounded-xl text-base"
-                                disabled={form.processing}
-                            >
-                                {form.processing
-                                    ? 'Przekierowanie...'
-                                    : 'Kupuję i płacę'}
-                            </Button>
                         </CardContent>
                     </Card>
                 </form>

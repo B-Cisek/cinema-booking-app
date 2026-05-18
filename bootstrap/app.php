@@ -34,6 +34,10 @@ return Application::configure(basePath: dirname(__DIR__))
             Translations::class,
             AddLinkHeadersForPreloadedAssets::class,
         ]);
+
+        $middleware->preventRequestForgery(except: [
+            'payu/notif',
+        ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {
         Integration::handles($exceptions);

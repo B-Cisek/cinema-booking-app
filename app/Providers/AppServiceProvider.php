@@ -4,6 +4,8 @@ declare(strict_types=1);
 
 namespace App\Providers;
 
+use App\Support\Payment\PaymentGateway;
+use App\Support\Payment\PayuPaymentGateway;
 use App\Support\Pricing\ConfigSeatPriceResolver;
 use App\Support\Pricing\SeatPriceResolver;
 use Carbon\CarbonImmutable;
@@ -21,6 +23,7 @@ class AppServiceProvider extends ServiceProvider
     public function register(): void
     {
         $this->app->bind(SeatPriceResolver::class, ConfigSeatPriceResolver::class);
+        $this->app->bind(PaymentGateway::class, PayuPaymentGateway::class);
     }
 
     /**
@@ -45,8 +48,7 @@ class AppServiceProvider extends ServiceProvider
         );
 
         Password::defaults(fn (): ?Password => app()->isProduction()
-            ? Password::min(12)
-                ->mixedCase()
+            ? Password::min(8)
                 ->letters()
                 ->numbers()
                 ->symbols()

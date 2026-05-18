@@ -103,8 +103,7 @@ class ReservationSummaryPageTest extends TestCase
                 ->where('selectedSeats.1.seatType', 'vip')
                 ->where('selectedSeats.1.price', 3400)
                 ->where('totalPrice', 5600)
-                ->has('paymentMethods', 3)
-                ->where('paymentMethods.0.code', 'payu')
+                ->missing('paymentMethods')
             );
     }
 

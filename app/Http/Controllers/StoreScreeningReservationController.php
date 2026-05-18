@@ -20,7 +20,6 @@ class StoreScreeningReservationController extends Controller
 
     public function __invoke(CreateReservationRequest $request, Screening $screening): RedirectResponse
     {
-        $paymentMethod = PaymentMethod::from($request->validated('paymentMethod'));
         $authUser = $request->user();
 
         $userIdentifier = $authUser === null
@@ -31,14 +30,13 @@ class StoreScreeningReservationController extends Controller
             screening: $screening,
             seatIds: $request->validated('seatIds'),
             userIdentifier: $userIdentifier,
-            paymentMethod: $paymentMethod,
+            paymentMethod: PaymentMethod::PAY_U,
             customerEmail: $request->validated('email'),
         );
 
         return redirect()->route('screenings.reservation-payment', [
             'screening' => $screening,
             'booking' => $booking,
-            'paymentMethod' => $paymentMethod->value,
         ]);
     }
 }

@@ -37,4 +37,12 @@ return [
         ],
     ],
 
+    'payu' => [
+        'base_url' => env('PAYU_BASE_URL', 'https://secure.snd.payu.com'),
+        'pos_id' => env('PAYU_POS_ID'),
+        'client_id' => env('PAYU_CLIENT_ID'),
+        'client_secret' => env('PAYU_CLIENT_SECRET'),
+        'second_key' => env('PAYU_SECOND_KEY'),
+        'notify_url' => env('PAYU_NOTIFY_URL'),
+    ],
 ];

@@ -61,4 +61,16 @@ class Booking extends Model
             'payment_method' => PaymentMethod::class,
         ];
     }
+
+    public function markAsConfirmed(): void
+    {
+        $this->status = BookingStatus::CONFIRMED;
+        $this->save();
+    }
+
+    public function markAsCancelled(): void
+    {
+        $this->status = BookingStatus::CANCELLED;
+        $this->save();
+    }
 }

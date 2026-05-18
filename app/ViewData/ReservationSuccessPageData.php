@@ -25,15 +25,17 @@ readonly class ReservationSuccessPageData
             throw new ModelNotFoundException;
         }
 
-        if ($booking->status !== BookingStatus::CONFIRMED) {
-            throw new ModelNotFoundException;
-        }
-
         return [
             'booking' => [
                 'id' => $booking->getKey(),
                 'number' => $booking->booking_number,
                 'email' => $booking->customer_email,
+                'status' => [
+                    'code' => $booking->status->value,
+                    'label' => $booking->status->label(),
+                    'is_paid' => $booking->status === BookingStatus::CONFIRMED,
+                    'is_pending' => $booking->status === BookingStatus::PENDING,
+                ],
                 'total' => $booking->bookedSeats->sum('price'),
                 'seats' => $booking->bookedSeats
                     ->map(fn (BookedSeat $bookedSeat): array => [

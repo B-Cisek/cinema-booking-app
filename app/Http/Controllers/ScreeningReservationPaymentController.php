@@ -4,33 +4,25 @@ declare(strict_types=1);
 
 namespace App\Http\Controllers;
 
-use App\Enums\PaymentMethod;
 use App\Models\Booking;
 use App\Models\Screening;
-use App\ViewData\ReservationPaymentPageData;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
+use App\Support\Payment\Payment;
+use App\Support\Payment\PaymentGateway;
+use Illuminate\Http\Request;
 use Inertia\Inertia;
-use Inertia\Response;
 
 class ScreeningReservationPaymentController extends Controller
 {
-    public function __construct(private readonly ReservationPaymentPageData $data) {}
+    public function __construct(
+        private readonly PaymentGateway $paymentGateway,
+    ) {}
 
-    public function __invoke(
-        Screening $screening,
-        Booking $booking,
-        string $paymentMethod,
-    ): Response {
-        $resolvedPaymentMethod = PaymentMethod::tryFrom($paymentMethod);
+    public function __invoke(Screening $screening, Booking $booking, Request $request)
+    {
+        abort_unless($booking->screening_id === $screening->getKey(), 404);
 
-        if ($resolvedPaymentMethod === null) {
-            throw new ModelNotFoundException;
-        }
+        $result = $this->paymentGateway->start(new Payment(booking: $booking, customerIp: $request->ip()));
 
-        return Inertia::render('ReservationPayment', $this->data->build(
-            $booking,
-            $screening,
-            $resolvedPaymentMethod,
-        ));
+        return Inertia::location($result->url);
     }
 }
