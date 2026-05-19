@@ -1,6 +1,7 @@
 services:
   app:
     container_name: cinema-app
+    image: cinema-app:prod
     build:
       context: .
       dockerfile: Dockerfile.prod
@@ -80,6 +81,24 @@ services:
       interval: 5s
       timeout: 5s
       retries: 10
+    networks:
+      - cinema
+
+  queue:
+    container_name: cinema-queue
+    image: cinema-app:prod
+    command: [ "php", "/var/www/html/artisan", "queue:work", "--tries=3" ]
+    stop_signal: SIGTERM
+    env_file:
+      - .env
+    environment:
+      PHP_DATE_TIMEZONE: ${PHP_DATE_TIMEZONE:-Europe/Warsaw}
+    restart: unless-stopped
+    depends_on:
+      database:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
     networks:
       - cinema
 
