@@ -48,6 +48,7 @@ Hold jest przypisany do identyfikatora właściciela: ID zalogowanego użytkowni
 - Laravel 13,
 - PHP 8.5,
 - Inertia.js 3,
+- SSR w Inertia,
 - React 19,
 - TypeScript,
 - Tailwind CSS 4,
@@ -64,7 +65,7 @@ Backend jest oparty o kontrolery, komendy aplikacyjne, repozytoria i osobne klas
 - `SeatHoldStore` odczytuje aktywne holdy dla widoku sali,
 - `CreateReservationHandler` waliduje holdy przed utworzeniem rezerwacji.
 
-Frontend jest zbudowany jako aplikacja Inertia + React. Widok rezerwacji komunikuje się z backendem przez wygenerowane funkcje Wayfinder, dzięki czemu trasy nie są wpisywane ręcznie w komponentach.
+Frontend jest zbudowany jako aplikacja Inertia + React z włączonym SSR. Widok rezerwacji komunikuje się z backendem przez wygenerowane funkcje Wayfinder, dzięki czemu trasy nie są wpisywane ręcznie w komponentach.
 
 ## TODO
 
